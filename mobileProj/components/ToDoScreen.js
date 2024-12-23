@@ -27,7 +27,9 @@ export default function ToDoScreen({ navigation }) {
 
     return unsubscribe;
   });
-
+  const handleData= ()=>{
+    navigation.replace('Data'); // Kullanıcı Login ekranına yönlendirilir
+  }
   const handleAddTodo = async () => {
     if (todo.trim() === '') return alert('Please enter a ToDo');
 
@@ -120,6 +122,10 @@ export default function ToDoScreen({ navigation }) {
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
+        <Text style={styles.logoutButtonText}>GoData</Text>
+      </TouchableOpacity>
+    
     </View>
   );
 }
@@ -212,4 +218,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+
 });

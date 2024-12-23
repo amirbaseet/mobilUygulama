@@ -4,23 +4,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
 import ToDoScreen from './components/ToDoScreen';
-import * as SQLite from 'expo-sqlite';
-
+import DataScreen from './components/dataPage';
+// import TScreen from './components/TPage';
 const Stack = createStackNavigator();
 
-// 📂 Veritabanını asenkron şekilde aç
-let db;
-
-async function openDatabase() {
-  db = await SQLite.openDatabaseAsync('example.db');
-}
 
 export default function App() {
   
-
-  
-
-
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
@@ -39,6 +29,18 @@ export default function App() {
           component={ToDoScreen} 
           options={{ headerShown: false }} 
         />        
+        <Stack.Screen 
+          name="Data" 
+          component={DataScreen} 
+          options={{ headerShown: false }} 
+        />        
+       {/* <Stack.Screen 
+          name="t" 
+          component={TScreen} 
+          options={{ headerShown: false }} 
+        />      
+          */}
+       
       </Stack.Navigator>
     </NavigationContainer>
   );
