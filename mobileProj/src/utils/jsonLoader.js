@@ -1,11 +1,11 @@
 const jsonFiles = {
   IgG1: require('../../assets/json/IgG1.json'),
-  IgG2: require('../../assets/json/IgG2.json'),
-  IgG3: require('../../assets/json/igG3.json'),
-  IgG4: require('../../assets/json/IgG4.json'),
-  IgM: require('../../assets/json/IgM.json'),
-  IgA: require('../../assets/json/IgA.json'),
-  IgG: require('../../assets/json/IgG.json'),
+  // IgG2: require('../../assets/json/IgG2.json'),
+  // IgG3: require('../../assets/json/IgG3.json'),
+  // IgG4: require('../../assets/json/IgG4.json'),
+  // IgM: require('../../assets/json/IgM.json'),
+  // IgA: require('../../assets/json/IgA.json'),
+  // IgG: require('../../assets/json/IgG.json'),
 };
 
 /**

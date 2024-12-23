@@ -4,13 +4,23 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
 import ToDoScreen from './components/ToDoScreen';
-import { setupDatabase } from './src/database/setup';
+import * as SQLite from 'expo-sqlite';
+
 const Stack = createStackNavigator();
 
+// 📂 Veritabanını asenkron şekilde aç
+let db;
+
+async function openDatabase() {
+  db = await SQLite.openDatabaseAsync('example.db');
+}
+
 export default function App() {
-  useEffect(() => {
-    setupDatabase();
-  }, []);
+  
+
+  
+
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
