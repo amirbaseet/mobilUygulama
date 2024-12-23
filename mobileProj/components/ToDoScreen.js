@@ -26,7 +26,7 @@ export default function ToDoScreen({ navigation }) {
       });
 
     return unsubscribe;
-  }, []);
+  });
 
   const handleAddTodo = async () => {
     if (todo.trim() === '') return alert('Please enter a ToDo');
