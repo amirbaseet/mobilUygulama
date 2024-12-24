@@ -5,7 +5,7 @@ import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
 import ToDoScreen from './components/ToDoScreen';
 import DataScreen from './components/dataPage';
-// import TScreen from './components/TPage';
+import AgeScreen from './components/AgeScreen';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 const Stack = createStackNavigator();
 
@@ -36,12 +36,12 @@ export default function App() {
           component={DataScreen} 
           options={{ headerShown: false }} 
         />        
-       {/* <Stack.Screen 
-          name="t" 
-          component={TScreen} 
+       <Stack.Screen 
+          name="Age" 
+          component={AgeScreen} 
           options={{ headerShown: false }} 
         />      
-          */}
+         
        
       </Stack.Navigator>
     </NavigationContainer>

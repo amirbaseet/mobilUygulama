@@ -189,7 +189,7 @@ const value = 26; // IgA value to check
 const type = 'IgA_data';
 const kilavuzNames =await getKlvzNames(db,type);// List of kilavuz names to filter by
 // await checkIgAByKilavuz(patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
-// await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
+await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
 console.log("########################################################################");
 console.log("########################################################################");
 

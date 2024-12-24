@@ -125,6 +125,9 @@ export default function ToDoScreen({ navigation }) {
       <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
         <Text style={styles.logoutButtonText}>GoData</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('Age');}}>
+        <Text style={styles.logoutButtonText}>Age</Text>
+      </TouchableOpacity>
     
     </View>
   );
