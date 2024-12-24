@@ -88,6 +88,47 @@ async function checkByKilavuzByMinMax(type,patientAgeMonths, value, kilavuzNames
     console.error('Error checking ${type} value:', error);
   }
 }
+async function checkByKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db) {
+  try {
+    // Query the database for the appropriate age range, reference range, and specific kilavuz
+    await db.withTransactionAsync(async () => {
+      const statement = await db.prepareAsync(`
+        SELECT kilavuz_name, min_age_months, max_age_months, min_geo, max_geo
+        FROM ${type}
+        WHERE min_age_months <= ? AND max_age_months >= ? AND kilavuz_name IN (?, ?)
+      `);
+      const result = await statement.executeAsync([
+        patientAgeMonths, 
+        patientAgeMonths, 
+        ...kilavuzNames // Spread the array to pass multiple `kilavuz_name` values
+      ]);
+      const rows = await result.getAllAsync();
+
+      if (rows.length > 0) {
+        
+        rows.forEach((row) => {
+          console.log(`Checking for Kilavuz: ${row.kilavuz_name}`);
+          console.log(`Database Range: Min Age = ${row.min_age_months}, Max Age = ${row.max_age_months}`);
+          console.log(`Reference Range: Min = ${row.min_geo}, Max = ${row.max_geo}`);
+          console.log(`Reference Range: BY GEO `);
+          
+          // Check if the IgA value is within the range
+          if (value <= (row.min_geo +row.max_geo ) && value >= (row.min_geo -row.max_geo )) {
+            console.log(`The ${type} value of ${value} is within the reference range for ${row.kilavuz_name}.`);
+
+          } else {
+            console.log(`The ${type} value of ${value} is outside the reference range for ${row.kilavuz_name}.`);
+
+          }
+        });
+      } else {
+        console.log('No matching reference range found for the given age and kilavuz.');
+      }
+    });
+  } catch (error) {
+    console.error('Error checking ${type} value:', error);
+  }
+}
 async function getKlvzNames(db,selectedTable) {
   const kilavuz_name = {}; // Initialize an empty object
 try{
@@ -144,12 +185,15 @@ export function Main() {
        
 // Example usage
 const patientAgeMonths = 24; // Patient's age in months
-const value = 7.66; // IgA value to check
+const value = 26; // IgA value to check
 const type = 'IgA_data';
 const kilavuzNames =await getKlvzNames(db,type);// List of kilavuz names to filter by
-await checkIgAByKilavuz(patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
+// await checkIgAByKilavuz(patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
+// await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
 console.log("########################################################################");
-await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
+console.log("########################################################################");
+
+checkByKilavuzByGeo(type,patientAgeMonths,value,kilavuzNames,db);
       } catch (error) {
         console.error('Error fetching data from SQLite:', error);
         setData([]); // Clear data on error
