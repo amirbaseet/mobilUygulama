@@ -6,6 +6,7 @@ import SignUpScreen from './components/SignUpScreen';
 import ToDoScreen from './components/ToDoScreen';
 import DataScreen from './components/dataPage';
 // import TScreen from './components/TPage';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 const Stack = createStackNavigator();
 
 
@@ -13,6 +14,7 @@ export default function App() {
   
   return (
     <NavigationContainer>
+   
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen 
           name="Login" 
