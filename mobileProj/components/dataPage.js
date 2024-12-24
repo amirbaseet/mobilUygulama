@@ -245,6 +245,36 @@ const TABLES = [
   'IgG3_data',
   'IgG4_data',
 ];
+async function checkIgA(patientAgeMonths, igaValue, db) {
+  try {
+    // Query the database for the appropriate age range and reference range
+    await db.withTransactionAsync(async () => {
+      const statement = await db.prepareAsync(`
+        SELECT min_age_months, max_age_months, min, max
+        FROM IgA_data
+        WHERE min_age_months <= ? AND max_age_months >= ?
+      `);
+      const result = await statement.executeAsync([patientAgeMonths, patientAgeMonths]);
+      const row = await result.getFirstAsync();
+
+      if (row) {
+        console.log(`Database Range Found: Min Age = ${row.min_age_months}, Max Age = ${row.max_age_months}`);
+        console.log(`Reference Range: Min = ${row.min}, Max = ${row.max}`);
+
+        // Check if the IgA value is within the range
+        if (igaValue >= row.min && igaValue <= row.max) {
+          console.log(`The IgA value of ${igaValue} is within the reference range.`);
+        } else {
+          console.log(`The IgA value of ${igaValue} is outside the reference range.`);
+        }
+      } else {
+        console.log('No reference range found for the given age.');
+      }
+    });
+  } catch (error) {
+    console.error('Error checking IgA value:', error);
+  }
+}
 
 export function Main() {
   const db = useSQLiteContext();
@@ -263,18 +293,53 @@ export function Main() {
           const rows = await result.getAllAsync();
           setData(rows);
         });
-        // await db.withTransactionAsync(async () => {
-        //   const statement = await db.prepareAsync(`SELECT * FROM ${selectedTable}`);
-        //   const result = await statement.executeAsync();
-        //   const row = await result.getFirstAsync();
+        await db.withTransactionAsync(async () => {
+          const statement = await db.prepareAsync(`SELECT * FROM ${selectedTable}`);
+          const result = await statement.executeAsync();
+          const row = await result.getFirstAsync();
+          if (row && row.min_age_months !== undefined) {
+            const modifiedAge = row.min_age_months + 5;
+            console.log(`Original Age: ${row.min_age_months}, Modified Age: ${modifiedAge}`);
+          } else {
+            console.log('No age field found or no data available in the table.');
+          }
+        });
+        const resultObject = {}; // Initialize an empty object
+        await db.withTransactionAsync(async () => {
+          // Query to count unique 'kilavuz' values
+          const statement = await db.prepareAsync(`SELECT COUNT(DISTINCT kilavuz_name) AS uniqueKilavuzCount FROM ${selectedTable}`);
+          const result = await statement.executeAsync();
+          const row = await result.getFirstAsync();
+      
+          if (row) {
+            // Store the count in the object
+            resultObject.uniqueKilavuzCount = row.uniqueKilavuzCount;
+            console.log('Result Object:', resultObject);
+          } else {
+            console.log('No data found.');
+          }
+        });
+        const kilavuz_name = {}; // Initialize an empty object
 
-        //   if (row && row.min_age_months !== undefined) {
-        //     const modifiedAge = row.min_age_months + 5;
-        //     console.log(`Original Age: ${row.min_age_months}, Modified Age: ${modifiedAge}`);
-        //   } else {
-        //     console.log('No age field found or no data available in the table.');
-        //   }
-        // });
+        await db.withTransactionAsync(async () => {
+          // Query to get unique 'kilavuz_name' values
+          const statement = await db.prepareAsync(`SELECT DISTINCT kilavuz_name FROM ${selectedTable}`);
+          const result = await statement.executeAsync();
+          const rows = await result.getAllAsync();
+      
+          // Extract the unique names into an array
+          const uniqueKilavuzNames = rows.map((row) => row.kilavuz_name);
+          kilavuz_name.uniqueKilavuzNames = uniqueKilavuzNames;
+      
+          console.log('Result Object with Unique Kilavuz Names:', kilavuz_name);
+        });
+      // Example usage
+const patientAgeMonths = 25; // Patient's age in months
+const igaValue = 7.66; // IgA value to check
+checkIgA(patientAgeMonths, igaValue, db); // Replace `db` with your SQLite database instance
+
+      
+
       } catch (error) {
         console.error('Error fetching data from SQLite:', error);
         setData([]); // Clear data on error
