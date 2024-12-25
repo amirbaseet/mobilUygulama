@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { auth, firestore } from '../firebase'; // firebase.js'den auth import edildi
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function SignUpScreen({ navigation }) {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false); // Add this state
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false); // Hide the picker
+    if (selectedDate) {
+      setDateOfBirth(selectedDate); // Set the selected date
+    }
+  };
 
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
@@ -17,10 +26,15 @@ export default function SignUpScreen({ navigation }) {
      const userCredential =  await auth.createUserWithEmailAndPassword(email, password);
      alert('Account created successfully!');
          // Save user role and email in Firestore
+             // Format date of birth to 'yy-mm-dd'
+    const formattedDateOfBirth = dateOfBirth.toISOString().split('T')[0].substring(2);
+
+
          const NewUser ={
           userId: userCredential.user.uid,
           email:email,
           role: 'user',
+          dateOfBirth: formattedDateOfBirth, 
          }
         //  console.log(NewUser);
          await firestore.collection('users').add(NewUser);
@@ -57,6 +71,17 @@ export default function SignUpScreen({ navigation }) {
         onChangeText={setConfirmPassword}
         secureTextEntry
       />
+       <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
+        <Text>{dateOfBirth.toDateString()}</Text>
+      </TouchableOpacity>
+      {showDatePicker && (
+        <DateTimePicker
+          value={dateOfBirth}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>

@@ -1,32 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { auth, firestore } from '../firebase';
-
+import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 export default function ToDoScreen({ navigation }) {
 
   const [todo, setTodo] = useState('');
   const [user, setUser] = useState(null);
   const [todoList, setTodoList] = useState([]);
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [ageInMonths, setAgeInMonths] = useState(null);
 
+  
+  
   useEffect(() => {
-
     const currentUser = auth.currentUser;
-    
     setUser(currentUser);
 
-    const unsubscribe = firestore.collection('todos')
-      .where('userId', '==', currentUser.uid)
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot => {
-        const todos = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setTodoList(todos);
-      });
+    if (currentUser) {
+      // Fetch user data from Firestore
+      firestore.collection('users').where('userId', '==', currentUser.uid).get()
+        .then(snapshot => {
+          if (!snapshot.empty) {
+            const userData = snapshot.docs[0].data();
+            setDateOfBirth(userData.dateOfBirth);
 
-    return unsubscribe;
-  });
+            // Calculate age in months
+            const age = calculateAgeInMonths(`20${userData.dateOfBirth}`); // Convert to valid full date format
+            setAgeInMonths(age);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+        });
+
+      // Fetch ToDo list
+      const unsubscribe = firestore.collection('todos')
+        .where('userId', '==', currentUser.uid)
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snapshot => {
+          const todos = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setTodoList(todos);
+        });
+
+      return unsubscribe;
+    }
+  }, []);
+
+    
   const handleData= ()=>{
     navigation.replace('Data'); // Kullanıcı Login ekranına yönlendirilir
   }
@@ -77,7 +100,9 @@ export default function ToDoScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome, {user?.email}</Text>
+       <Text style={styles.welcomeText}>Welcome, {user?.email}</Text>
+       {dateOfBirth && <Text style={styles.infoText}>Date of Birth: {dateOfBirth}</Text>}
+        {ageInMonths !== null && <Text style={styles.infoText}>Age in Months: {ageInMonths}</Text>}
 
       <View style={styles.inputContainer}>
         <TextInput
