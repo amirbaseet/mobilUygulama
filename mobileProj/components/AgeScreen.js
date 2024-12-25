@@ -5,13 +5,13 @@ import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,getKlvzNames} from '../sr
 import {calculateAgeInMonths} from '../src/utils/calculateAgeInMonths';
 import DateTimePicker from '@react-native-community/datetimepicker';
 const TABLES = [
-  'IgM_data',
-  'IgA_data',
-  'IgG_data',
-  'IgG1_data',
-  'IgG2_data',
-  'IgG3_data',
-  'IgG4_data',
+  {table:'IgM_data',type:'IgM'},
+  {table:'IgA_data'  ,type:'IgA'},
+  {table:'IgG_data'  ,type:'IgG'},
+  {table:'IgG1_data' ,type:'IgG1'},
+  {table:'IgG2_data' ,type:'IgG2'},
+  {table:'IgG3_data' ,type:'IgG3'},
+  {table:'IgG4_data' ,type:'IgG4'},
 ];
 
 
@@ -28,6 +28,7 @@ const TABLES = [
   const [igg2, setIgg2] = useState(''); // IgA value
   const [igg3, setIgg3] = useState(''); // IgA value
   const [igg4, setIgg4] = useState(''); // IgA value
+  const [results, setResults] = useState([]); // Store evaluation results
 
 
     const handelBD =(event,selectedDate)=>{ 
@@ -35,12 +36,13 @@ const TABLES = [
          setDateOfBirth(selectedDate)
          const ageInMon = calculateAgeInMonths(selectedDate);
           console.log(ageInMon)
-          setAgeInMonths(ageInMon);
+          const agein=setAgeInMonths(ageInMon);
+          console.log(`\nMONTHOS AGE ${ageInMon}`)
         }
     }
     const handlecheck=async()=>{
       const types = [];
-      allResults = [];
+      const allResults = [];
 
       if(igm) types.push(TABLES[0]);
       if(iga) types.push(TABLES[1]);
@@ -48,25 +50,48 @@ const TABLES = [
       if(igg1) types.push(TABLES[3]);
       if(igg2) types.push(TABLES[4]);
       if(igg3) types.push(TABLES[5]);
+      if(igg4) types.push(TABLES[6]);
 
       if(types.length == 0){
         console.log('Tabel is null')
         return;
       }
-      console.log("Hjhjhj")
        try
        { 
         for (const type of types){
-          const klvzNames =  await getKlvzNames(db,type);
+          const klvzNames =  await getKlvzNames(db,type.table);
           console.log(klvzNames)
-          const results = await checkTypeKilavuzByGeo(type,ageInMonths,iga,klvzNames,db);}
-          allResults.push(...result);
-        }catch(err){`Error processing type ${type}:`, error}
-    allResults.forEach((evaluation)=>{
+          let value;
+          if (type.type === TABLES[0].type)  value = igm;
+          if (type.type === TABLES[1].type)  value = iga;
+          if (type.type === TABLES[2].type)  value = igg;
+          if (type.type === TABLES[3].type)  value = igg1;
+          if (type.type === TABLES[4].type)  value = igg2;
+          if (type.type === TABLES[5].type)  value = igg3;
+          if (type.type === TABLES[6].type)  value = igg4;
+            
+
+          const results = await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
+          allResults.push(...results);
+          // Update state with results
+          setResults(allResults);
+
+            console.log(`const results = await checkTypeKilavuzByGeo(type.table = ${type.table},ageInMonths= ${ageInMonths},value = ${value},klvzNames= ${klvzNames},db =${db});`)
+          console.log(results.length)
+          // results.forEach((evaluation)=>{
+          //   console.log(evaluation)
+          //   console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
+          //        min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
+          // });
+        }
+
+          allResults.forEach((evaluation)=>{
       console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
            min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
     })
 
+        }catch(err){`Error processing type ${type}:`, error}
+    
   }
 
     return(
@@ -131,7 +156,26 @@ const TABLES = [
               value={igg4}
               onChangeText={setIgg4}
             />
-    
+
+<FlatList
+          data={results}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.resultItem}>
+              <Text style={styles.resultText}>
+                KilavuzName: {item.KilavuzName}
+              </Text>
+              <Text style={styles.resultDetails}>
+                Age Group: {item.age_group}, Value: {item.value}, Result: {item.result ? 'In Range' : 'Out of Range'}
+              </Text>
+              <Text style={styles.resultDetails}>
+                Reference Range: {item.DataBaseMinRange} - {item.DataBaseMaxRange}
+              </Text>
+            </View>
+          )}
+        />
+
+
             <TouchableOpacity style={styles.button} onPress={handlecheck}>
               <Text style={styles.buttonText}>Check</Text>
             </TouchableOpacity>

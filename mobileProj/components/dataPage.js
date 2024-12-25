@@ -50,15 +50,15 @@ export function Main() {
         });
        
 // Example usage
-const patientAgeMonths = 273; // Patient's age in months
+const patientAgeMonths = 60; // Patient's age in months
 const value = 70; // IgA value to check
 const type = 'IgM_data';
 const kilavuzNames =await getKlvzNames(db,type);// List of kilavuz names to filter by
 // await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
 console.log("###############################checkTypeKilavuzByGeo#########################################");
-// await checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
+await checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
 console.log("###############################checkTypeKilavuzByMinMax#########################################");
-await checkTypeKilavuzByMinMax(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
+// await checkTypeKilavuzByMinMax(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
 
 // checkByKilavuzByGeo(type,patientAgeMonths,value,kilavuzNames,db);
       } catch (error) {
