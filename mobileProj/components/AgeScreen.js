@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet,TouchableOpacity } from 'react-native';
 import { calculateAgeInMonths } from '../src/utils/calculateAgeInMonths'; // Import the utility function
 
-export default function AgeScreen() {
+export default function AgeScreen({navigation}) {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [ageInMonths, setAgeInMonths] = useState(null);
 
@@ -21,7 +21,9 @@ export default function AgeScreen() {
       console.error('Error calculating age:', error);
     }
   };
-
+  const handleData= ()=>{
+    navigation.replace('ToDo'); // Kullanıcı Login ekranına yönlendirilir
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Enter Date of Birth (YYYY-MM-DD):</Text>
@@ -37,6 +39,9 @@ export default function AgeScreen() {
           Age in Months: {ageInMonths}
         </Text>
       )}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
+                    <Text style={styles.logoutButtonText}>GoData</Text>
+                  </TouchableOpacity>
     </View>
   );
 }
@@ -66,5 +71,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+  },
+  logoutButton: {
+    height: 50,
+    backgroundColor: '#d9534f',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
