@@ -1,4 +1,4 @@
-export  default  function calculateAgeInMonths(dateOfBirth) {
+export   function calculateAgeInMonths(dateOfBirth) {
 
     const dob = new Date(dateOfBirth); // Convert dateOfBirth to a Date object
     const currentDate = new Date(); // Use current date or replace with a specific date if needed

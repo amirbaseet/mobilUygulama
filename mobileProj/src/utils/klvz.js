@@ -152,10 +152,10 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
           });
          
         }
-        results.forEach((evaluation)=>{
-            console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
-                 min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
-          })
+        // results.forEach((evaluation)=>{
+        //     console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
+        //          min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
+        //   })
       });
     } catch (error) {
       console.error(`Error checking ${type} value:`, error);
