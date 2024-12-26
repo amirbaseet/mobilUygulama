@@ -107,7 +107,7 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
   
         if (rows.length > 0) {
           rows.forEach((row) => {
-            console.log(`ageGroup is ${row.age_group}`)
+            // console.log(`ageGroup is ${row.age_group}`)
 
             const isLower = value < (row.min_geo -row.max_geo ); 
             const isHigher = value > (row.min_geo +row.max_geo ); 
@@ -151,12 +151,13 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
          
         }
         // Debug log for all results
-      results.forEach((evaluation) => {
-        console.log(
-          `TestType=${evaluation.testType} Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} is Lower ${evaluation.isLower} is isHigher ${evaluation.isHigher} the reference range for ${evaluation.KilavuzName} 
-           min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`
-        );
-      });      });
+      // results.forEach((evaluation) => {
+      //   console.log(
+      //     `TestType=${evaluation.testType} Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} is Lower ${evaluation.isLower} is isHigher ${evaluation.isHigher} the reference range for ${evaluation.KilavuzName} 
+      //      min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`
+      //   );
+      // });   
+       });
     } catch (error) {
       console.error(`Error checking ${type} value:`, error);
     }

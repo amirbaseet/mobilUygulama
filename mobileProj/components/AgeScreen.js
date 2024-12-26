@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {Platform, View, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView, FlatList } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,getKlvzNames} from '../src/utils/klvz';
-import {calculateAgeInMonths} from '../src/utils/calculateAgeInMonths';
+import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 import DateTimePicker from '@react-native-community/datetimepicker';
 const TABLES = [
   {table:'IgM_data',type:'IgM'},
@@ -54,13 +54,15 @@ const TABLES = [
 
       if(types.length == 0){
         console.log('Tabel is null')
+        setResults([]);
+
         return;
       }
        try
        { 
         for (const type of types){
           const klvzNames =  await getKlvzNames(db,type.table);
-          console.log(klvzNames)
+          // console.log(klvzNames)
           let value;
           if (type.type === TABLES[0].type)  value = igm;
           if (type.type === TABLES[1].type)  value = iga;
@@ -79,9 +81,14 @@ const TABLES = [
 
           // Update state with results
           setResults(allResults);
-
-            console.log(`const results = await checkTypeKilavuzByGeo(type.table = ${type.table},ageInMonths= ${ageInMonths},value = ${value},klvzNames= ${klvzNames},db =${db});`)
-          console.log(results.length)
+          console.log(`results.length = ${results.length}`)
+          results.forEach((evaluation)=>{
+            console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
+                 min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
+          })
+      
+          // console.log(`const results = await checkTypeKilavuzByGeo(type.table = ${type.table},ageInMonths= ${ageInMonths},value = ${value},klvzNames= ${klvzNames},db =${db});`)
+          // console.log(results.length)
           // results.forEach((evaluation)=>{
           //   console.log(evaluation)
           //   console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
@@ -89,10 +96,6 @@ const TABLES = [
           // });
         }
 
-          allResults.forEach((evaluation)=>{
-      console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
-           min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
-    })
 
         }catch(err){`Error processing type ${type}:`, error}
     
