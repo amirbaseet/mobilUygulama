@@ -71,8 +71,12 @@ const TABLES = [
           if (type.type === TABLES[6].type)  value = igg4;
             
 
-          const results = await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
+          // const results = await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
+          const results = await checkTypeKilavuzByMinMax(type.table,ageInMonths,value,klvzNames,db);
           allResults.push(...results);
+          const resultsBygeo =await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
+          allResults.push(...resultsBygeo);
+
           // Update state with results
           setResults(allResults);
 
@@ -158,23 +162,30 @@ const TABLES = [
             />
 
 <FlatList
-          data={results}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.resultItem}>
-              <Text style={styles.resultText}>
-                KilavuzName: {item.KilavuzName}
-              </Text>
-              <Text style={styles.resultDetails}>
-                Age Group: {item.age_group}, Value: {item.value}, Result: {item.result ? 'In Range' : 'Out of Range'}
-              </Text>
-              <Text style={styles.resultDetails}>
-                Reference Range: {item.DataBaseMinRange} - {item.DataBaseMaxRange}
-              </Text>
-            </View>
-          )}
-        />
-
+  data={results}
+  keyExtractor={(item, index) => index.toString()}
+  renderItem={({ item }) => (
+    <View style={styles.resultItem}>
+      <Text style={styles.resultText}>testType: {item.testType}</Text>
+      <Text style={styles.resultText}>KilavuzName: {item.KilavuzName}</Text>
+      <Text style={[styles.resultText, { color: item.result ? 'green' : 'red' }]}>
+        Result: {item.result ? 'In Range' : 'Out of Range'}
+      </Text>
+      <Text style={styles.resultText}>type: {item.type}</Text>
+      <Text style={styles.resultDetails}>Age Group: {item.age_group}</Text>
+      <Text style={styles.resultDetails}>Value: {item.value}</Text>
+      <Text style={styles.resultDetails}>
+        Reference Range: {item.DataBaseMinRange} - {item.DataBaseMaxRange}
+      </Text>
+      <Text style={[styles.resultDetails, { color: item.isLower ? 'red' : 'green' }]}>
+        isLower: {item.isLower ? 'true' : 'false'}
+      </Text>
+      <Text style={[styles.resultDetails, { color: item.isHigher ? 'red' : 'green' }]}>
+        isHigher: {item.isHigher ? 'true' : 'false'}
+      </Text>
+    </View>
+  )}
+/>
 
             <TouchableOpacity style={styles.button} onPress={handlecheck}>
               <Text style={styles.buttonText}>Check</Text>

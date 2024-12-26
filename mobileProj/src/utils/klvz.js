@@ -31,19 +31,24 @@ export  async function checkTypeKilavuzByMinMax(type,patientAgeMonths, value, ki
           ...kilavuzNames // Spread the array to pass multiple `kilavuz_name` values
         ]);
         const rows = await result.getAllAsync();
-  
+        const testType = 'minmax';
         if (rows.length > 0) {
           rows.forEach((row) => {
-            const inRange = value >= row.min && value <= row.max;
-
+            // const inRange = value >= row.min && value <= row.max;
+            const isLower =  value < row.min; 
+            const isHigher = value > row.max;
+            const inRange = (!isLower&&!isHigher);
             // Check if the IgA value is within the range
               const evaluation  ={
                 KilavuzName: row.kilavuz_name,
                 type:type,
+                testType:testType,
                 value:value, 
                 age_group:row.age_group,
                 DataBaseMinRange:row.min,
                 DataBaseMaxRange:row.max,
+                isLower:isLower,
+                isHigher:isHigher,
                 result: inRange,//in the range
                 found: true,
               }
@@ -54,20 +59,25 @@ export  async function checkTypeKilavuzByMinMax(type,patientAgeMonths, value, ki
           // Handle case where no rows match
           results.push({
             KilavuzName: kilavuz,
+            testType:testType,
             type:type,
             value:value, 
             age_group:"null not found",
             DataBaseMinRange: 0,
             DataBaseMaxRange: 0,
+            isLower:false,
+            isHigher:false,
             Result: false,
             found: false,
           });
          
         }
-        // results.forEach((evaluation)=>{
-        //     console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
-        //          min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
-        //   })
+        // results.forEach((evaluation) => {
+        //   console.log(
+        //     `TestType=${evaluation.testType} Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} is Lower ${evaluation.isLower} is isHigher ${evaluation.isHigher} the reference range for ${evaluation.KilavuzName} 
+        //      min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`
+        //   );
+        // }); 
       });
     } catch (error) {
       console.error(`Error checking ${type} value:`, error);
@@ -77,7 +87,7 @@ export  async function checkTypeKilavuzByMinMax(type,patientAgeMonths, value, ki
 export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db) {
     const results = []; // Array to store the results
     try {
-        
+      const testType = 'Geo';
       // Query the database for the appropriate age range, reference range, and specific kilavuz
       const patientAgeMonthsModified = adultsByMonths(patientAgeMonths); 
       const placeholders = kilavuzNames.map(() => '?').join(', '); // e.g., '?, ?, ?' for 3 names
@@ -99,17 +109,24 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
           rows.forEach((row) => {
             console.log(`ageGroup is ${row.age_group}`)
 
-            const inRange = value <= (row.min_geo +row.max_geo ) && value >= (row.min_geo -row.max_geo );
+            const isLower = value < (row.min_geo -row.max_geo ); 
+            const isHigher = value > (row.min_geo +row.max_geo ); 
+            // const inRange = value <= (row.min_geo +row.max_geo ) && value >= (row.min_geo -row.max_geo );
+            const inRange = (!isLower&&!isHigher);
 
             // Check if the IgA value is within the range
             if (value <= (row.min_geo +row.max_geo ) && value >= (row.min_geo -row.max_geo )) {
               const evaluation  ={
                 KilavuzName: row.kilavuz_name,
+                
                 type:type,
+                testType:testType,
                 value:value, 
                 age_group:row.age_group,
                 DataBaseMinRange:row.min_geo,
                 DataBaseMaxRange:row.max_geo,
+                isLower:isLower,
+                isHigher:isHigher,
                 result: inRange,//in the range
                 found: true,
               }
@@ -120,11 +137,14 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
           // Handle case where no rows match
           results.push({
             KilavuzName: kilavuz,
+            testType:testType,
             type:type,
             value:value, 
            age_group:'null not found',
             DataBaseMinRange: 0,
             DataBaseMaxRange: 0,
+            isLower:false,
+            isHigher:false,
             Result: false,
             found: false,
           });
@@ -133,7 +153,7 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
         // Debug log for all results
       results.forEach((evaluation) => {
         console.log(
-          `Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
+          `TestType=${evaluation.testType} Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} is Lower ${evaluation.isLower} is isHigher ${evaluation.isHigher} the reference range for ${evaluation.KilavuzName} 
            min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`
         );
       });      });
