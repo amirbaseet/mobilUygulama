@@ -4,18 +4,24 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,getKlvzNames} from '../src/utils/klvz';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Keyboard } from 'react-native';
+import _ from 'lodash'; // Import lodash for grouping
+
 const TABLES = [
-  {table:'IgM_data',type:'IgM'},
-  {table:'IgA_data'  ,type:'IgA'},
-  {table:'IgG_data'  ,type:'IgG'},
-  {table:'IgG1_data' ,type:'IgG1'},
-  {table:'IgG2_data' ,type:'IgG2'},
-  {table:'IgG3_data' ,type:'IgG3'},
-  {table:'IgG4_data' ,type:'IgG4'},
+  {table:'IgM_data',type:'IgM'   ,char: 'M' },
+  {table:'IgA_data'  ,type:'IgA' ,char: 'A' },
+  {table:'IgG_data'  ,type:'IgG' ,char: 'G' },
+  {table:'IgG1_data' ,type:'IgG1',char: 'G1' },
+  {table:'IgG2_data' ,type:'IgG2',char: 'G2' },
+  {table:'IgG3_data' ,type:'IgG3',char: 'G3' },
+  {table:'IgG4_data' ,type:'IgG4',char: 'G4' },
 ];
 
-
- function  GuestPage() {
+export function getTableName(input){
+  const tabelName = TABLES.find((item) => item.table === input);
+  return tabelName;
+}
+  function  GuestPage() {
 
 
    const db = useSQLiteContext();
@@ -29,7 +35,7 @@ const TABLES = [
   const [igg3, setIgg3] = useState(''); // IgA value
   const [igg4, setIgg4] = useState(''); // IgA value
   const [results, setResults] = useState([]); // Store evaluation results
-
+  const [groupedResults, setGroupedResults] = useState({});
 
     const handelBD =(event,selectedDate)=>{ 
       if(selectedDate){
@@ -41,6 +47,8 @@ const TABLES = [
         }
     }
     const handlecheck=async()=>{
+      Keyboard.dismiss();
+
       const types = [];
       const allResults = [];
 
@@ -55,6 +63,7 @@ const TABLES = [
       if(types.length == 0){
         console.log('Tabel is null')
         setResults([]);
+        setGroupedResults({});
 
         return;
       }
@@ -75,25 +84,18 @@ const TABLES = [
 
           // const results = await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
           const results = await checkTypeKilavuzByMinMax(type.table,ageInMonths,value,klvzNames,db);
-          allResults.push(...results);
           const resultsBygeo =await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
-          allResults.push(...resultsBygeo);
-
-          // Update state with results
-          setResults(allResults);
-          console.log(`results.length = ${results.length}`)
-          results.forEach((evaluation)=>{
+          
+          allResults.push(...results,...resultsBygeo);
+          resultsBygeo.forEach((evaluation)=>{
             console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
                  min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
           })
-      
-          // console.log(`const results = await checkTypeKilavuzByGeo(type.table = ${type.table},ageInMonths= ${ageInMonths},value = ${value},klvzNames= ${klvzNames},db =${db});`)
-          // console.log(results.length)
-          // results.forEach((evaluation)=>{
-          //   console.log(evaluation)
-          //   console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
-          //        min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
-          // });
+          // Update state with results
+          setResults(allResults);
+          const grouped = _.groupBy(allResults, 'KilavuzName');
+          setGroupedResults(grouped);
+        
         }
 
 
@@ -106,95 +108,138 @@ const TABLES = [
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : null}
         >
-          <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 20 }}>
+          <View style={[{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'row',padding: 40}]}>
+         
+            <Text >Enter the dateOfBirth</Text>
             <DateTimePicker
               value={dateOfBirth}
               mode="date"
               display="default"
               onChange={handelBD}
             />
-    
+            <Text>/{ageInMonths}</Text>
+
+            </View>
+          <View style={[styles.inputRow]}>
+         
             <TextInput
               style={styles.input}
-              placeholder="Enter IgA Value"
+              placeholder="IgA"
               keyboardType="numeric"
               value={iga}
               onChangeText={setIga}
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter IgM Value"
+              placeholder="IgM"
               keyboardType="numeric"
               value={igm}
               onChangeText={setIgm}
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter IgG Value"
+              placeholder="IgG"
               keyboardType="numeric"
               value={igg}
               onChangeText={setIgg}
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter Igg1 Value"
+              placeholder="Igg1"
               keyboardType="numeric"
               value={igg1}
               onChangeText={setIgg1}
             />
+
+           
+</View>
+<View style={[styles.inputRow]}>
             <TextInput
               style={styles.input}
-              placeholder="Enter Igg2 Value"
+              placeholder="Igg2"
               keyboardType="numeric"
               value={igg2}
               onChangeText={setIgg2}
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter Igg3 Value"
+              placeholder="Igg3"
               keyboardType="numeric"
               value={igg3}
               onChangeText={setIgg3}
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter Igg4 Value"
+              placeholder="Igg4"
               keyboardType="numeric"
               value={igg4}
               onChangeText={setIgg4}
             />
+              <TouchableOpacity style={[styles.button]} onPress={handlecheck}>
+              <Text style={styles.buttonText}>Check</Text>
+            </TouchableOpacity>
+</View>
 
-<FlatList
+
+<ScrollView >
+{/* <FlatList
   data={results}
   keyExtractor={(item, index) => index.toString()}
   renderItem={({ item }) => (
     <View style={styles.resultItem}>
-      <Text style={styles.resultText}>testType: {item.testType}</Text>
-      <Text style={styles.resultText}>KilavuzName: {item.KilavuzName}</Text>
-      <Text style={[styles.resultText, { color: item.result ? 'green' : 'red' }]}>
-        Result: {item.result ? 'In Range' : 'Out of Range'}
+      <Text style={styles.resultText}>klavuz: {item.KilavuzName}  IG: {getTableName(item.type).char}</Text>
+      {/* <Text style={styles.resultText}>IG: {getTableName(item.type).char}</Text> */}
+      {/* <Text style={styles.resultText}>Age Group: {item.age_group}</Text>
+      <Text style={[styles.resultDetails,{ color: item.result ? 'green' : 'red' }]}>
+        Ref Range: {item.isLower? '↓':''}{item.DataBaseMinRange} {item.result? '↔':'-'} {item.DataBaseMaxRange} {item.isHigher? '↑':''}
       </Text>
-      <Text style={styles.resultText}>type: {item.type}</Text>
-      <Text style={styles.resultDetails}>Age Group: {item.age_group}</Text>
-      <Text style={styles.resultDetails}>Value: {item.value}</Text>
-      <Text style={styles.resultDetails}>
-        Reference Range: {item.DataBaseMinRange} - {item.DataBaseMaxRange}
-      </Text>
-      <Text style={[styles.resultDetails, { color: item.isLower ? 'red' : 'green' }]}>
-        isLower: {item.isLower ? 'true' : 'false'}
-      </Text>
-      <Text style={[styles.resultDetails, { color: item.isHigher ? 'red' : 'green' }]}>
-        isHigher: {item.isHigher ? 'true' : 'false'}
-      </Text>
+      <Text style={styles.resultDetails}>{(item.testType)}</Text>
+    
+    </View>
+  )} */}
+{/* /> */} 
+<FlatList
+  data={Object.keys(groupedResults)} // Get unique KilavuzName values
+  keyExtractor={(item) => item} // KilavuzName as the unique key
+  renderItem={({ item }) => (
+    <View style={styles.groupContainer}>
+      {/* Display the KilavuzName as the group header */}
+            
+            <Text style={styles.groupHeader}>{item  } </Text>
+      {/* Render all items for this group */}
+      {groupedResults[item].map((result, index) => (
+        <View key={index} style={styles.resultItem}>
+          <Text style={styles.resultText}>
+            {`IG: ${getTableName(result.type).char}`}
+          </Text>
+          <Text style={styles.resultText}>
+            {`Age Group: ${result.age_group}`}
+          </Text>
+          <Text
+            style={[
+              styles.resultDetails,
+              { color: result.result ? 'green' : 'red' }, // Conditional color
+            ]}
+          >
+            {`Ref Range: ${result.isLower ? '↓' : ''}${result.DataBaseMinRange} ${
+              result.result ? '↔' : '-'
+            } ${result.DataBaseMaxRange} ${result.isHigher ? '↑' : ''}`}
+          </Text>
+          <Text >
+          </Text>
+          <Text style={styles.resultDetails}>
+            {`${result.testType} value: ${result.value}`}
+          </Text>
+        </View>
+      ))}
     </View>
   )}
 />
-
-            <TouchableOpacity style={styles.button} onPress={handlecheck}>
-              <Text style={styles.buttonText}>Check</Text>
-            </TouchableOpacity>
+          
           </ScrollView>
-        </KeyboardAvoidingView>
+         
+          </KeyboardAvoidingView>
+        
       );
     
 
@@ -226,17 +271,17 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  subTitle: {
-    fontSize: 18,
-    marginBottom: 10,
+
+
+  inputRow:{
+    flexWrap:'wrap',
+    flexDirection:'row',
+    justifyContent: 'space-between',
+    alignItems:'center',
   },
   input: {
     height: 50,
+    width: 70,
     backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 15,
@@ -244,23 +289,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  inputSmall: {
-    flex: 1,
-    height: 50,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginHorizontal: 5,
-  },
+  
   button: {
-    height: 50,
+    height: 45,
+    width: 70,
     backgroundColor: '#4caf50',
     justifyContent: 'center',
     alignItems: 'center',
@@ -281,11 +313,39 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   resultText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   resultDetails: {
     fontSize: 14,
-    color: 'gray',
+    color:'grey'
   },
+  groupContainer: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: '#e6e6e6', // Light background for group container
+    borderRadius: 8,
+  },
+  groupHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  resultItem: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  resultText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  resultDetails: {
+    fontSize: 14,
+    color: 'grey',
+  },
+  
 });

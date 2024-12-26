@@ -11,6 +11,7 @@ function adultsByMonths(patientAgeMonths){
     //Patient is not an adult, returning actual age in months.
     return patientAgeMonths;
 }
+
 export  async function checkTypeKilavuzByMinMax(type,patientAgeMonths, value, kilavuzNames, db) {
     const results = []; // Array to store the results
     try {
@@ -84,10 +85,11 @@ export  async function checkTypeKilavuzByMinMax(type,patientAgeMonths, value, ki
     }
     return results;
   }
+  
 export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db) {
     const results = []; // Array to store the results
     try {
-      const testType = 'Geo';
+      const testType = 'Geometrik mean';
       // Query the database for the appropriate age range, reference range, and specific kilavuz
       const patientAgeMonthsModified = adultsByMonths(patientAgeMonths); 
       const placeholders = kilavuzNames.map(() => '?').join(', '); // e.g., '?, ?, ?' for 3 names
@@ -113,12 +115,9 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
             const isHigher = value > (row.min_geo +row.max_geo ); 
             // const inRange = value <= (row.min_geo +row.max_geo ) && value >= (row.min_geo -row.max_geo );
             const inRange = (!isLower&&!isHigher);
-
             // Check if the IgA value is within the range
-            if (value <= (row.min_geo +row.max_geo ) && value >= (row.min_geo -row.max_geo )) {
               const evaluation  ={
                 KilavuzName: row.kilavuz_name,
-                
                 type:type,
                 testType:testType,
                 value:value, 
@@ -131,7 +130,7 @@ export  async function checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilav
                 found: true,
               }
               results.push(evaluation);
-            } 
+              
           });
         } else {
           // Handle case where no rows match
