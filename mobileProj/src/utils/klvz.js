@@ -14,7 +14,7 @@ function adultsByMonths(patientAgeMonths){
 
 export async function checkUlatimate(type, patientAgeMonths, value, kilavuzNames, db) {
   const results = []; // Array to store the results
-  const testType = ['Geometrik mean', 'minmax'];
+  const testType = ['Geometrik mean', 'minmax','confidence'];
   const patientAgeMonthsModified = adultsByMonths(patientAgeMonths);
   const placeholders = kilavuzNames.map(() => '?').join(', '); // e.g., '?, ?, ?' for 3 names
 
@@ -23,7 +23,7 @@ export async function checkUlatimate(type, patientAgeMonths, value, kilavuzNames
     await db.withTransactionAsync(async () => {
       try {
         const statement = await db.prepareAsync(`
-          SELECT age_group, kilavuz_name, min_age_months, max_age_months, min_geo, max_geo, min, max
+          SELECT age_group, kilavuz_name, min_age_months, max_age_months, min_geo, max_geo, min, max,min_confidence,max_confidence
           FROM ${type}
           WHERE min_age_months <= ? AND max_age_months >= ? AND kilavuz_name IN (${placeholders})
           
@@ -43,14 +43,23 @@ console.log("***************************");
         // const rows = await result.getAllAsync();
         if (rows.length > 0) {
           rows.forEach((row) => {
+            //checking by 
+            //minmax
+            console.log(` min_geo = ${row.min_geo}, max_geo= ${row.max_geo}, min= ${row.min}, max= ${row.max},min_confidence= ${row.min_confidence},max_confidence= ${row.max_confidence}`)
             const isLowerMinMax = value < row.min;
             const isHigherMinMax = value > row.max;
             const inRangeMinMax = (!isLowerMinMax && !isHigherMinMax);
-
+            const checkedByminmax= (row.min+row.max)//check if there values was null or not if null dont show the m to the user
+            //confidence
+            const isLowerConf = value < row.min_confidence;
+            const isHigherConf = value > row.max_confidence;
+            const inRangeConf = (!isLowerConf && !isHigherConf);
+            const checkedByConf= ( row.min_confidence+row.max_confidence)
+            //geo
             const isLowerGeo = value < (row.max_geo - row.min_geo);
             const isHigherGeo = value > (row.min_geo + row.max_geo);
             const inRangeGeo = (!isLowerGeo && !isHigherGeo);
-
+            const checkedByGeo= ( row.max_geo+row.min_geo)
             const evaluation = {
               kilavuzName: row.kilavuz_name,
               type: type,
@@ -63,12 +72,22 @@ console.log("***************************");
               isLowerGeo: isLowerGeo,
               isHigherGeo: isHigherGeo,
               resultGeo: inRangeGeo,
+              checkedByGeo:checkedByGeo,
               // minmax values
               isLowerMinMax: isLowerMinMax,
               isHigherMinMax: isHigherMinMax,
               DataBaseMinRange: row.min,
               DataBaseMaxRange: row.max,
               resultMinMax: inRangeMinMax,
+              checkedByminmax:checkedByminmax,
+              // Confidence values
+              isLowerConf: isLowerConf,
+              isHigherConf: isHigherConf,
+              DataBaseMinRangeconf: row.min_confidence,
+              DataBaseMaxRangeconf: row.max_confidence,
+              resultConf: inRangeConf,
+              checkedByConf:checkedByConf,
+              //
               found: true,
             };
             results.push(evaluation);
@@ -87,12 +106,23 @@ console.log("***************************");
             isLowerGeo: null,
             isHigherGeo: null,
             resultGeo: null,
+            checkedByGeo:false,
             // minmax values
             isLowerMinMax: null,
             isHigherMinMax: null,
             DataBaseMinRange: null,
             DataBaseMaxRange: null,
             resultMinMax: null,
+            checkedByminmax:false,
+             // Confidence values
+             isLowerConf: null,
+             isHigherConf: null,
+             DataBaseMinRange: null,
+             DataBaseMaxRange: null,
+             resultConf: null,
+             checkedByConf:false,
+
+             //
             found: false,
           });
         }

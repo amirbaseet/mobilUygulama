@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Platform, View, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView, FlatList } from 'react-native';
+import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView, FlatList } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import {getKlvzNames,checkUlatimate} from '../src/utils/klvz';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
@@ -82,6 +82,7 @@ export function getTableName(input){
           if (type.type === TABLES[5].type)  value = igg3;
           if (type.type === TABLES[6].type)  value = igg4;
             
+          // value = value * 100;
           const ultimateResults = await checkUlatimate(type.table,ageInMonths,value,klvzNames,db);
           // console.log('Ultimate Results:', ultimateResults);
           allUResults.push(...ultimateResults);
@@ -103,7 +104,7 @@ export function getTableName(input){
             <Text  >Enter the dateOfBirth</Text>
             <View>
   <TouchableOpacity onPress={() => setShowPicker(true)}>
-    <Text style={{ color: '#000' }}>Select Date of Birth</Text>
+    <Text style={{ color: 'green' }}>Select Date of Birth</Text>
   </TouchableOpacity>
   {showPicker && (
     <DateTimePicker
@@ -142,7 +143,7 @@ export function getTableName(input){
             />
             <TextInput
               style={styles.input}
-              placeholder="Igg1"
+              placeholder="IgG1"
               keyboardType="numeric"
               value={igg1}
               onChangeText={setIgg1}
@@ -153,21 +154,21 @@ export function getTableName(input){
 <View style={[styles.inputRow]}>
             <TextInput
               style={styles.input}
-              placeholder="Igg2"
+              placeholder="IgG2"
               keyboardType="numeric"
               value={igg2}
               onChangeText={setIgg2}
             />
             <TextInput
               style={styles.input}
-              placeholder="Igg3"
+              placeholder="IgG3"
               keyboardType="numeric"
               value={igg3}
               onChangeText={setIgg3}
             />
             <TextInput
               style={styles.input}
-              placeholder="Igg4"
+              placeholder="IgG4"
               keyboardType="numeric"
               value={igg4}
               onChangeText={setIgg4}
@@ -178,60 +179,73 @@ export function getTableName(input){
 </View>
 
 
-<ScrollView >
 {Object.keys(UgroupedResults).length === 0 ? (
-  <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
-) :(<FlatList
-  data={Object.keys(UgroupedResults)} // Get unique KilavuzName values
-  keyExtractor={(item) => item} // KilavuzName as the unique key
-  renderItem={({ item }) => (
-    <View style={styles.groupContainer}>
-      {/* Display the KilavuzName as the group header */}
-            
-            <Text style={styles.groupHeader}>{item  } </Text>
-      {/* Render all items for this group */}
-      {UgroupedResults[item].map((result, index) => (
-        <View key={index} style={styles.resultItem}>
+    <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
+  ) : (
+    <SectionList
+      sections={Object.keys(UgroupedResults).map((key) => ({
+        title: key, // Group header (KilavuzName)
+        data: UgroupedResults[key], // Group items
+      }))}
+      keyExtractor={(item, index) => item.id || `${item.type}-${index}`}
+      renderSectionHeader={({ section }) => (
+        <Text style={styles.groupHeader}>{section.title}</Text>
+      )}
+      renderItem={({ item }) => (
+        <View style={styles.resultItem}>
+          {/* Main Result Text */}
           <Text style={styles.resultText}>
-            {`IG${getTableName(result.type).char }{${result.value}}`}
-            <Text style={styles.resultText}>
-            {`   ${result.age_group}`}
+            {`IG${getTableName(item.type).char}{${item.value}}   ${item.age_group}`}
           </Text>
-          </Text>
-         
-          <Text
-            style={[
-              styles.resultDetails,
-              { color: result.resultGeo ? 'green' : 'red' }, // Conditional color
-            ]}
-          >
-            {` ${result.isLowerGeo ? '↓' : ''}${result.DataBaseMinGeoRange} ${
-              result.resultGeo ? '↔' : '-'
-            } ${result.DataBaseMaxGeoRange} ${result.isHigherGeo ? '↑' : ''}`}
-             <Text style={styles.resultDetails}>
-            {`Geometrik`}
-          </Text>
-          </Text>
-          <Text
-            style={[
-              styles.resultDetails,
-              { color: result.resultMinMax ? 'green' : 'red' }, // Conditional color
-            ]}
-          >
-            {` ${result.isLowerMinMax ? '↓' : ''}${result.DataBaseMinRange} ${
-              result.resultMinMax ? '↔' : '-'
-            } ${result.DataBaseMaxRange} ${result.isHigherMinMax ? '↑' : ''}`}
-            <Text style={styles.resultDetails}>
-            {`minmax `}
-          </Text>
-          </Text>
-          
+
+          {/* Geo Validation */}
+          {item.checkedByGeo ? (
+            <Text
+              style={[
+                styles.resultDetails,
+                { color: item.resultGeo ? 'green' : 'red' },
+              ]}
+            >
+              {`${item.isLowerGeo ? '↓' : ''}${item.DataBaseMinGeoRange} ${
+                item.resultGeo ? '↔' : '-'
+              } ${item.DataBaseMaxGeoRange} ${item.isHigherGeo ? '↑' : ''} Geometrik`}
+            </Text>
+          ):null}
+
+          {/* MinMax Validation */}
+          {item.checkedByminmax ? (
+            <Text
+              style={[
+                styles.resultDetails,
+                { color: item.resultMinMax ? 'green' : 'red' },
+              ]}
+            >
+              {`${item.isLowerMinMax ? '↓' : ''}${item.DataBaseMinRange} ${
+                item.resultMinMax ? '↔' : '-'
+              } ${item.DataBaseMaxRange} ${item.isHigherMinMax ? '↑' : ''} minmax`}
+            </Text>
+          ):null}
+
+          {/* Confidence Validation */}
+          {item.checkedByConf ? (
+            <Text
+              style={[
+                styles.resultDetails,
+                { color: item.resultConf ? 'green' : 'red' },
+              ]}
+            >
+              {`${item.isLowerConf ? '↓' : ''}${item.DataBaseMinRangeconf} ${
+                item.resultConf ? '↔' : '-'
+              } ${item.DataBaseMaxRangeconf} ${item.isHigherConf ? '↑' : ''} Conf`}
+            </Text>
+          ):null}
         </View>
-      ))}
-    </View>
-  )}
-/>)}
-          </ScrollView>
+      )}
+      ListEmptyComponent={
+        <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
+      }
+    />
+  )}          
           </KeyboardAvoidingView>
       );
     
@@ -274,7 +288,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    width: 70,
+    width: 80,
     backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 15,
