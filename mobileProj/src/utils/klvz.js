@@ -26,15 +26,21 @@ export async function checkUlatimate(type, patientAgeMonths, value, kilavuzNames
           SELECT age_group, kilavuz_name, min_age_months, max_age_months, min_geo, max_geo, min, max
           FROM ${type}
           WHERE min_age_months <= ? AND max_age_months >= ? AND kilavuz_name IN (${placeholders})
+          
         `);
-
+        // LIMIT 10
         const result = await statement.executeAsync([
           patientAgeMonthsModified,
           patientAgeMonthsModified,
           ...kilavuzNames // Spread the array to pass multiple `kilavuz_name` values
         ]);
+     const startTime = Date.now(); // Record start time
+const rows = await result.getAllAsync();
+const endTime = Date.now(); // Record end time
 
-        const rows = await result.getAllAsync();
+console.log(`\n\nQueryExecution Time: ${endTime - startTime}ms`);
+console.log("***************************");
+        // const rows = await result.getAllAsync();
         if (rows.length > 0) {
           rows.forEach((row) => {
             const isLowerMinMax = value < row.min;

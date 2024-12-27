@@ -36,9 +36,12 @@ export function getTableName(input){
   const [igg4, setIgg4] = useState(''); // IgA value
   const [Uresults, UsetResults] = useState([]); // Store evaluation results
   const [UgroupedResults, setUGroupedResults] = useState({});
+  const [showPicker, setShowPicker] = useState(false);
+
 
     const handelBD =(event,selectedDate)=>{ 
       if(selectedDate){
+        setShowPicker(false); // Hide the picker
          setDateOfBirth(selectedDate)
          const ageInMon = calculateAgeInMonths(selectedDate);
           console.log(ageInMon)
@@ -98,12 +101,19 @@ export function getTableName(input){
           <View style={[{justifyContent:'center',alignItems:'center',flexDirection:'row',padding: 40}]}>
          
             <Text  >Enter the dateOfBirth</Text>
-            <DateTimePicker
-              value={dateOfBirth}
-              mode="date"
-              display="default"
-              onChange={handelBD}
-            />
+            <View>
+  <TouchableOpacity onPress={() => setShowPicker(true)}>
+    <Text style={{ color: '#000' }}>Select Date of Birth</Text>
+  </TouchableOpacity>
+  {showPicker && (
+    <DateTimePicker
+      value={dateOfBirth}
+      mode="date"
+      display="default"
+      onChange={handelBD}
+    />
+  )}
+</View>
             <Text>/{ageInMonths}</Text>
 
             </View>

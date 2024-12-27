@@ -91,7 +91,6 @@ return (
   <SafeAreaView style={styles.container}>
   <ScrollView contentContainerStyle={styles.container}>
     <Text style={styles.title}>Enter Data</Text>
-    <View style={styles.pickerWrapper}>
  {/* RNPickerSelect */}
  <View style={styles.pickerContainer}>
         <Text style={styles.label}>Select Table</Text>
@@ -103,9 +102,7 @@ return (
           items={table.map((item) => ({ label: item, value: item }))}
           value={selectedTable}
           style={pickerSelectStyles}
-          placeholder={{ label: "Select a table", value: null }}
         />
-      </View>
       </View>
     {/* Form Fields - Two Inputs Per Row */}
     {groupedFields.map((fields, rowIndex) => (
@@ -155,11 +152,12 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     marginBottom: 20,
-    paddingVertical: 10, // Ensures sufficient touchable area
+    paddingVertical: 20, // Ensures sufficient touchable area
     backgroundColor: "#fff",
     borderRadius: 5,
     borderColor: "#ccc",
     borderWidth: 1,
+    color:'black',
   },
   pickerWrapper: {
     marginBottom: 20,
