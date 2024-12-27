@@ -3,7 +3,7 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { View, Text, FlatList, StyleSheet,TouchableOpacity } from 'react-native';
 
 import { Picker } from '@react-native-picker/picker';
-import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,getKlvzNames} from '../src/utils/klvz';
+import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,checkUlatimate,getKlvzNames} from '../src/utils/klvz';
 const TABLES = [
   'IgM_data',
   'IgA_data',
@@ -32,14 +32,14 @@ export function Main() {
           const rows = await result.getAllAsync();
           setData(rows);
         });
-       
+
         const resultObject = {};// Initialize an empty object
         await db.withTransactionAsync(async () => {
           // Query to count unique 'kilavuz' values
           const statement = await db.prepareAsync(`SELECT COUNT(DISTINCT kilavuz_name) AS uniqueKilavuzCount FROM ${selectedTable}`);
           const result = await statement.executeAsync();
           const row = await result.getFirstAsync();
-      
+
           if (row) {
             // Store the count in the object
             resultObject.uniqueKilavuzCount = row.uniqueKilavuzCount;
@@ -48,17 +48,18 @@ export function Main() {
             console.log('No data found.');
           }
         });
-       
+
 // Example usage
-const patientAgeMonths = 60; // Patient's age in months
-const value = 70; // IgA value to check
-const type = 'IgM_data';
+const patientAgeMonths = 25; // Patient's age in months
+const value = 25; // IgA value to check
+const type = 'IgA_data';
 const kilavuzNames =await getKlvzNames(db,type);// List of kilavuz names to filter by
-// // await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
+await checkUlatimate(type,patientAgeMonths,value,kilavuzNames,db);
+// await checkByKilavuzByMinMax(type,patientAgeMonths,value,kilavuzNames,db);
 // console.log("###############################checkTypeKilavuzByGeo#########################################");
-// await checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
+// await checkTypeKilavuzByGeo(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance
 // console.log("###############################checkTypeKilavuzByMinMax#########################################");
-// // await checkTypeKilavuzByMinMax(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance      
+// await checkTypeKilavuzByMinMax(type,patientAgeMonths, value, kilavuzNames, db); // Replace `db` with your SQLite database instance
 
 // checkByKilavuzByGeo(type,patientAgeMonths,value,kilavuzNames,db);
       } catch (error) {
@@ -111,7 +112,7 @@ const kilavuzNames =await getKlvzNames(db,type);// List of kilavuz names to filt
           <Text>No data found for the selected table.</Text>
         </View>
       )}
-      
+
     </View>
   );
 }

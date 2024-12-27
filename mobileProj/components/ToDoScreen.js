@@ -153,6 +153,9 @@ export default function ToDoScreen({ navigation }) {
       <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('Age');}}>
         <Text style={styles.logoutButtonText}>Age</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('EnterDataScreen');}}>
+        <Text style={styles.logoutButtonText}>EnterDataScreen</Text>
+      </TouchableOpacity>
     
     </View>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {Platform, View, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView, FlatList } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,getKlvzNames} from '../src/utils/klvz';
+import {getKlvzNames,checkUlatimate} from '../src/utils/klvz';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Keyboard } from 'react-native';
@@ -34,8 +34,8 @@ export function getTableName(input){
   const [igg2, setIgg2] = useState(''); // IgA value
   const [igg3, setIgg3] = useState(''); // IgA value
   const [igg4, setIgg4] = useState(''); // IgA value
-  const [results, setResults] = useState([]); // Store evaluation results
-  const [groupedResults, setGroupedResults] = useState({});
+  const [Uresults, UsetResults] = useState([]); // Store evaluation results
+  const [UgroupedResults, setUGroupedResults] = useState({});
 
     const handelBD =(event,selectedDate)=>{ 
       if(selectedDate){
@@ -50,8 +50,8 @@ export function getTableName(input){
       Keyboard.dismiss();
 
       const types = [];
-      const allResults = [];
-
+      const allUResults = [];
+      
       if(igm) types.push(TABLES[0]);
       if(iga) types.push(TABLES[1]);
       if(igg) types.push(TABLES[2]);
@@ -62,16 +62,14 @@ export function getTableName(input){
 
       if(types.length == 0){
         console.log('Tabel is null')
-        setResults([]);
-        setGroupedResults({});
-
+        UsetResults([]);
+        setUGroupedResults({});
         return;
       }
        try
        { 
         for (const type of types){
           const klvzNames =  await getKlvzNames(db,type.table);
-          // console.log(klvzNames)
           let value;
           if (type.type === TABLES[0].type)  value = igm;
           if (type.type === TABLES[1].type)  value = iga;
@@ -81,24 +79,13 @@ export function getTableName(input){
           if (type.type === TABLES[5].type)  value = igg3;
           if (type.type === TABLES[6].type)  value = igg4;
             
-
-          // const results = await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
-          const results = await checkTypeKilavuzByMinMax(type.table,ageInMonths,value,klvzNames,db);
-          const resultsBygeo =await checkTypeKilavuzByGeo(type.table,ageInMonths,value,klvzNames,db);
-          
-          allResults.push(...results,...resultsBygeo);
-          resultsBygeo.forEach((evaluation)=>{
-            console.log(`Founded = ${evaluation.found} The age_group: ${evaluation.age_group} ${type} value of ${value} is it in the range = ${evaluation.result} the reference range for ${evaluation.KilavuzName} 
-                 min = ${evaluation.DataBaseMinRange} max = ${evaluation.DataBaseMaxRange} the patientValue = ${value}.`);
-          })
-          // Update state with results
-          setResults(allResults);
-          const grouped = _.groupBy(allResults, 'KilavuzName');
-          setGroupedResults(grouped);
-        
+          const ultimateResults = await checkUlatimate(type.table,ageInMonths,value,klvzNames,db);
+          // console.log('Ultimate Results:', ultimateResults);
+          allUResults.push(...ultimateResults);
+          UsetResults(allUResults);
+          const UgroupedResults=_.groupBy(allUResults,'kilavuzName');
+          setUGroupedResults(UgroupedResults)
         }
-
-
         }catch(err){`Error processing type ${type}:`, error}
     
   }
@@ -108,9 +95,9 @@ export function getTableName(input){
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : null}
         >
-          <View style={[{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'row',padding: 40}]}>
+          <View style={[{justifyContent:'center',alignItems:'center',flexDirection:'row',padding: 40}]}>
          
-            <Text >Enter the dateOfBirth</Text>
+            <Text  >Enter the dateOfBirth</Text>
             <DateTimePicker
               value={dateOfBirth}
               mode="date"
@@ -182,24 +169,10 @@ export function getTableName(input){
 
 
 <ScrollView >
-{/* <FlatList
-  data={results}
-  keyExtractor={(item, index) => index.toString()}
-  renderItem={({ item }) => (
-    <View style={styles.resultItem}>
-      <Text style={styles.resultText}>klavuz: {item.KilavuzName}  IG: {getTableName(item.type).char}</Text>
-      {/* <Text style={styles.resultText}>IG: {getTableName(item.type).char}</Text> */}
-      {/* <Text style={styles.resultText}>Age Group: {item.age_group}</Text>
-      <Text style={[styles.resultDetails,{ color: item.result ? 'green' : 'red' }]}>
-        Ref Range: {item.isLower? '↓':''}{item.DataBaseMinRange} {item.result? '↔':'-'} {item.DataBaseMaxRange} {item.isHigher? '↑':''}
-      </Text>
-      <Text style={styles.resultDetails}>{(item.testType)}</Text>
-    
-    </View>
-  )} */}
-{/* /> */} 
-<FlatList
-  data={Object.keys(groupedResults)} // Get unique KilavuzName values
+{Object.keys(UgroupedResults).length === 0 ? (
+  <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
+) :(<FlatList
+  data={Object.keys(UgroupedResults)} // Get unique KilavuzName values
   keyExtractor={(item) => item} // KilavuzName as the unique key
   renderItem={({ item }) => (
     <View style={styles.groupContainer}>
@@ -207,39 +180,49 @@ export function getTableName(input){
             
             <Text style={styles.groupHeader}>{item  } </Text>
       {/* Render all items for this group */}
-      {groupedResults[item].map((result, index) => (
+      {UgroupedResults[item].map((result, index) => (
         <View key={index} style={styles.resultItem}>
           <Text style={styles.resultText}>
-            {`IG: ${getTableName(result.type).char}`}
+            {`IG${getTableName(result.type).char }{${result.value}}`}
+            <Text style={styles.resultText}>
+            {`   ${result.age_group}`}
           </Text>
-          <Text style={styles.resultText}>
-            {`Age Group: ${result.age_group}`}
+          </Text>
+         
+          <Text
+            style={[
+              styles.resultDetails,
+              { color: result.resultGeo ? 'green' : 'red' }, // Conditional color
+            ]}
+          >
+            {` ${result.isLowerGeo ? '↓' : ''}${result.DataBaseMinGeoRange} ${
+              result.resultGeo ? '↔' : '-'
+            } ${result.DataBaseMaxGeoRange} ${result.isHigherGeo ? '↑' : ''}`}
+             <Text style={styles.resultDetails}>
+            {`Geometrik`}
+          </Text>
           </Text>
           <Text
             style={[
               styles.resultDetails,
-              { color: result.result ? 'green' : 'red' }, // Conditional color
+              { color: result.resultMinMax ? 'green' : 'red' }, // Conditional color
             ]}
           >
-            {`Ref Range: ${result.isLower ? '↓' : ''}${result.DataBaseMinRange} ${
-              result.result ? '↔' : '-'
-            } ${result.DataBaseMaxRange} ${result.isHigher ? '↑' : ''}`}
+            {` ${result.isLowerMinMax ? '↓' : ''}${result.DataBaseMinRange} ${
+              result.resultMinMax ? '↔' : '-'
+            } ${result.DataBaseMaxRange} ${result.isHigherMinMax ? '↑' : ''}`}
+            <Text style={styles.resultDetails}>
+            {`minmax `}
           </Text>
-          <Text >
           </Text>
-          <Text style={styles.resultDetails}>
-            {`${result.testType} value: ${result.value}`}
-          </Text>
+          
         </View>
       ))}
     </View>
   )}
-/>
-          
+/>)}
           </ScrollView>
-         
           </KeyboardAvoidingView>
-        
       );
     
 
@@ -318,7 +301,8 @@ const styles = StyleSheet.create({
   },
   resultDetails: {
     fontSize: 14,
-    color:'grey'
+    color:'grey',
+    textAlign:'right'
   },
   groupContainer: {
     marginVertical: 10,
@@ -329,13 +313,15 @@ const styles = StyleSheet.create({
   groupHeader: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 15,
+    textAlign:'left',
   },
   resultItem: {
     backgroundColor: '#fff',
     padding: 15,
     borderRadius: 8,
     marginVertical: 8,
+    marginBottom: 15,
     borderWidth: 1,
     borderColor: '#ddd',
   },
