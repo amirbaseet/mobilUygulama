@@ -23,7 +23,7 @@ export default function ToDoScreen({ navigation }) {
           if (!snapshot.empty) {
             const userData = snapshot.docs[0].data();
             setDateOfBirth(userData.dateOfBirth);
-
+              console.log(`setDateOfBirth(${userData.dateOfBirth})`)
             // Calculate age in months
             const age = calculateAgeInMonths(`20${userData.dateOfBirth}`); // Convert to valid full date format
             setAgeInMonths(age);
@@ -155,6 +155,9 @@ export default function ToDoScreen({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('EnterDataScreen');}}>
         <Text style={styles.logoutButtonText}>EnterDataScreen</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('AddResultScreen');}}>
+        <Text style={styles.logoutButtonText}>AddResultScreen</Text>
       </TouchableOpacity>
     
     </View>

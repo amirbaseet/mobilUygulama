@@ -35,12 +35,17 @@ export default function LoginScreen({ navigation }) {
  
      // Get the role from user data
      const role = userData.role;
-     
-     if(role === 'admin')
+
+     if (role === 'admin') {
       alert(`User logged in with role: Admin`);
-     else
+       navigation.navigate('AdminStack');
+     } else if (role === 'user') {
      alert(`User logged in with role: User`);
 
+       navigation.navigate('UserStack');
+     } else {
+       alert('Role not recognized!');
+     }   
      // Display success message
   // Debugging: Log the fetched data
       navigation.navigate('ToDo');

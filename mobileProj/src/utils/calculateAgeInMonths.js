@@ -33,3 +33,18 @@ export  default function calculateAgeInMonths(dateOfBirth) {
     //Patient is not an adult, returning actual age in months.
     return patientAgeMonths;
   }
+  export function convertMonthsToYears(ageInMonths) {
+    // Convert months to years and months
+    const years = Math.floor(ageInMonths / 12);
+    const remainingMonths = ageInMonths % 12;
+  
+    // Format the result
+    if (years > 0 && remainingMonths > 0) {
+        return `${years}Y ${remainingMonths}M`;
+    } else if (years > 0) {
+        return `${years}Y`;
+    } else {
+        return `${remainingMonths}M`;
+    }
+  }
+  

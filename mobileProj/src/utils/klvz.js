@@ -43,7 +43,7 @@ console.log("***************************");
             const inRangeConf = (!isLowerConf && !isHigherConf);
             const checkedByConf= ( row.min_confidence+row.max_confidence)
             //geo
-            const isLowerGeo = value < (row.max_geo - row.min_geo);
+            const isLowerGeo = value < Math.abs(row.max_geo - row.min_geo);//taking the absoulote value
             const isHigherGeo = value > (row.min_geo + row.max_geo);
             const inRangeGeo = (!isLowerGeo && !isHigherGeo);
             const checkedByGeo= ( row.max_geo+row.min_geo)
