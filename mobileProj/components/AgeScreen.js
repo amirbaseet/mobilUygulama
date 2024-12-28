@@ -1,26 +1,15 @@
 import React, { useState } from 'react';
-import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView, FlatList } from 'react-native';
+import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView,TouchableWithoutFeedback, FlatList } from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import {getKlvzNames,checkUlatimate} from '../src/utils/klvz';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Keyboard } from 'react-native';
 import _ from 'lodash'; // Import lodash for grouping
+import {getTabletable,TABLES} from '../src/utils/Table';
 
-const TABLES = [
-  {table:'IgM_data',type:'IgM'   ,char: 'M' },
-  {table:'IgA_data'  ,type:'IgA' ,char: 'A' },
-  {table:'IgG_data'  ,type:'IgG' ,char: 'G' },
-  {table:'IgG1_data' ,type:'IgG1',char: 'G1' },
-  {table:'IgG2_data' ,type:'IgG2',char: 'G2' },
-  {table:'IgG3_data' ,type:'IgG3',char: 'G3' },
-  {table:'IgG4_data' ,type:'IgG4',char: 'G4' },
-];
 
-export function getTableName(input){
-  const tabelName = TABLES.find((item) => item.table === input);
-  return tabelName;
-}
+
   function  GuestPage() {
 
 
@@ -95,10 +84,14 @@ export function getTableName(input){
   }
 
     return(
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} 
+      accessible={false}>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={{ flex: 1 } }
           behavior={Platform.OS === 'ios' ? 'padding' : null}
         >
+          
+         
           <View style={[{justifyContent:'center',alignItems:'center',flexDirection:'row',padding: 40}]}>
          
             <Text  >Enter the dateOfBirth</Text>
@@ -151,7 +144,7 @@ export function getTableName(input){
 
            
 </View>
-<View style={[styles.inputRow]}>
+<View style={[styles.inputRow]} >
             <TextInput
               style={styles.input}
               placeholder="IgG2"
@@ -195,7 +188,7 @@ export function getTableName(input){
         <View style={styles.resultItem}>
           {/* Main Result Text */}
           <Text style={styles.resultText}>
-            {`IG${getTableName(item.type).char}{${item.value}}   ${item.age_group}`}
+            {`IG${getTabletable(item.type).char}{${item.value}}   ${item.age_group}`}
           </Text>
 
           {/* Geo Validation */}
@@ -245,8 +238,10 @@ export function getTableName(input){
         <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
       }
     />
-  )}          
+  )}         
           </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+
       );
     
 

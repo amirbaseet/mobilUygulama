@@ -1,23 +1,10 @@
-function adultsByMonths(patientAgeMonths){
-  //if the patient is adult returning the months to 192 due to make it easier to make the sql query  
-  // becaues all of the adults the min age is 192 and the max age was null in the tables so i assigned it to 0
-  
-  if(patientAgeMonths>=192)
-      {
-        //  Patient is an adult, returning 192 months.
-          return 200;
-      }
-  else
-  //Patient is not an adult, returning actual age in months.
-  return patientAgeMonths;
-}
+import {adultsByMonths} from "./calculateAgeInMonths";
 
 export async function checkUlatimate(type, patientAgeMonths, value, kilavuzNames, db) {
   const results = []; // Array to store the results
   const testType = ['Geometrik mean', 'minmax','confidence'];
   const patientAgeMonthsModified = adultsByMonths(patientAgeMonths);
   const placeholders = kilavuzNames.map(() => '?').join(', '); // e.g., '?, ?, ?' for 3 names
-
   try {
     // Wrap the transaction in a try-catch
     await db.withTransactionAsync(async () => {
@@ -161,4 +148,19 @@ try{
   console.error('Error getting klvuz names:', error);
 }
 return kilavuz_name.uniqueKilavuzNames; // Return the array directly
+}
+export async function insertDataInto(type, db, data) {
+  await db.withTransactionAsync(async () => {
+    const query = `INSERT INTO ${type} 
+    (age_group, min_age_months, max_age_months, number, min_geo, max_geo,
+     min_mean_sd, max_mean_sd, min, max, min_confidence, max_confidence,
+      kilavuz_name, type)
+    VALUES (?, ?, ?, ?, ?, ?,
+           ?, ?, ?, ?, ?, ?,
+           ?, ?)`;
+    await db.runAsync(query,
+      data.age_group, data.min_age_months, data.max_age_months, data.number,
+      data.min_geo, data.max_geo, data.min_mean_sd, data.max_mean_sd, data.min,
+      data.max, data.min_confidence, data.max_confidence, data.kilavuz_name, data.type);
+  });
 }

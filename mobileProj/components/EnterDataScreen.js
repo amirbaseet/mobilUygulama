@@ -1,37 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView ,Platform,SafeAreaView} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView ,Platform,SafeAreaView,KeyboardAvoidingView} from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 import * as SQLite from 'expo-sqlite';
-
-const TABLES = [
-  { table: 'IgM_data', type: 'IgM' },
-  { table: 'IgA_data', type: 'IgA' },
-  { table: 'IgG_data', type: 'IgG' },
-  { table: 'IgG1_data', type: 'IgG1' },
-  { table: 'IgG2_data', type: 'IgG2' },
-  { table: 'IgG3_data', type: 'IgG3' },
-  { table: 'IgG4_data', type: 'IgG4' },
-];
+import {getTableName} from '../src/utils/Table';
+import {insertDataInto} from '../src/utils/klvz';
 const table = ['IgM','IgA','IgG','IgG1','IgG2','IgG3','IgG4']
-export function getTableName(input){
-  const tabelName = TABLES.find((item) => item.type === input);
-  return tabelName;
-}
-async function insertDataInto(type, db, data) {
-  await db.withTransactionAsync(async () => {
-    const query = `INSERT INTO ${type} 
-    (age_group, min_age_months, max_age_months, number, min_geo, max_geo,
-     min_mean_sd, max_mean_sd, min, max, min_confidence, max_confidence,
-      kilavuz_name, type)
-    VALUES (?, ?, ?, ?, ?, ?,
-           ?, ?, ?, ?, ?, ?,
-           ?, ?)`;
-    await db.runAsync(query,
-      data.age_group, data.min_age_months, data.max_age_months, data.number,
-      data.min_geo, data.max_geo, data.min_mean_sd, data.max_mean_sd, data.min,
-      data.max, data.min_confidence, data.max_confidence, data.kilavuz_name, data.type);
-  });
-}
 
 export default function EnterDataScreen({navigation}) {
   const handleData= ()=>{
@@ -63,7 +36,8 @@ export default function EnterDataScreen({navigation}) {
       const db = await SQLite.openDatabaseAsync('immunoglobulins');
       await insertDataInto(getTableName(selectedTable).table, db, {
         ...formData,
-        min_age_months: parseFloat(formData.min_age_months) || null,
+        kilavuz_name: formData.kilavuz_name.toLowerCase(),
+        min_age_months: parseFloat(formData.min_age_months) || 0,
         max_age_months: parseFloat(formData.max_age_months) || null,
         number: parseFloat(formData.number) || 0,
         min_geo: parseFloat(formData.min_geo) || null,
@@ -76,6 +50,20 @@ export default function EnterDataScreen({navigation}) {
         max_confidence: parseFloat(formData.max_confidence) || null,
         type:selectedTable,
       });
+      setFormData({
+        age_group: '',
+        kilavuz_name: '',
+        min_age_months: '',
+        max_age_months: '',
+        min_geo: '',
+        max_geo: '',
+        min_mean_sd: '',
+        max_mean_sd: '',
+        min: '',
+        max: '',
+        min_confidence: '',
+        max_confidence: '',
+      })
       alert('Data inserted successfully!');
     } catch (error) {
       console.error('Error inserting data:', error);
@@ -90,6 +78,8 @@ export default function EnterDataScreen({navigation}) {
 return (
   <SafeAreaView style={styles.container}>
   <ScrollView contentContainerStyle={styles.container}>
+  <KeyboardAvoidingView>
+
     <Text style={styles.title}>Enter Data</Text>
  {/* RNPickerSelect */}
  <View style={styles.pickerContainer}>
@@ -111,11 +101,11 @@ return (
           <TextInput
             key={field}
             style={styles.input}
-            placeholder={field.replace(/_/g, " ")}
+            placeholder={field.replace(/_/g, "")}
             value={formData[field]}
             onChangeText={(value) => handleInputChange(field, value)}
             keyboardType={
-              ["min_age_months", "max_age_months", "number", "min", "max"].includes(field)
+              ["min_age_months", "max_age_months", "number", "min", "max,min_confidence","max_confidence"].includes(field)
                 ? "numeric"
                 : "default"
             }
@@ -132,7 +122,9 @@ return (
     <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
                     <Text style={styles.logoutButtonText}>GoData</Text>
                   </TouchableOpacity>
+                  </KeyboardAvoidingView>
   </ScrollView>
+
   </SafeAreaView>
 );}
 

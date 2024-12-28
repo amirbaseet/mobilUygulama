@@ -20,4 +20,16 @@ export  default function calculateAgeInMonths(dateOfBirth) {
   
     return totalMonths;
   }
-  
+  export function adultsByMonths(patientAgeMonths){
+    //if the patient is adult returning the months to 192 due to make it easier to make the sql query  
+    // becaues all of the adults the min age is 192 and the max age was null in the tables so i assigned it to 0
+    
+    if(patientAgeMonths>=192)
+        {
+          //  Patient is an adult, returning 192 months.
+            return 200;
+        }
+    else
+    //Patient is not an adult, returning actual age in months.
+    return patientAgeMonths;
+  }
