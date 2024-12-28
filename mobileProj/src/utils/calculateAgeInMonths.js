@@ -27,7 +27,7 @@ export  default function calculateAgeInMonths(dateOfBirth) {
     if(patientAgeMonths>=192)
         {
           //  Patient is an adult, returning 192 months.
-            return 200;
+            return 192;
         }
     else
     //Patient is not an adult, returning actual age in months.
