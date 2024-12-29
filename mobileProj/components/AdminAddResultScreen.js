@@ -3,7 +3,7 @@ import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView
 import { auth, firestore } from '../firebase';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import {getKlvzNames,checkUlatimate} from '../src/utils/klvz';
+import {getKlvzNames,checkUlatimateWithUser,handleSaveToFirestore} from '../src/utils/klvz';
 
 import { Keyboard } from 'react-native';
 import _ from 'lodash'; // Import lodash for grouping
@@ -76,22 +76,10 @@ const getDateByMail=()=>{
     }
 }
 
+
 const handleCheckMail = () => {
   console.log(`Entered email: ${mail}`);
   getDateByMail();
-};
-const createValuesObject = () => {
-  const enteredValues = {};
-
-  if (igm) enteredValues[TABLES[0].type] = igm; // Maps "IgM" to its value
-  if (iga) enteredValues[TABLES[1].type] = iga; // Maps "IgA" to its value
-  if (igg) enteredValues[TABLES[2].type] = igg; // Maps "IgG" to its value
-  if (igg1) enteredValues[TABLES[3].type] = igg1; // Maps "IgG1" to its value
-  if (igg2) enteredValues[TABLES[4].type] = igg2; // Maps "IgG2" to its value
-  if (igg3) enteredValues[TABLES[5].type] = igg3; // Maps "IgG3" to its value
-  if (igg4) enteredValues[TABLES[6].type] = igg4; // Maps "IgG4" to its value
-
-  return enteredValues;
 };
 
    const handlecheck=async()=>{
@@ -107,7 +95,6 @@ const createValuesObject = () => {
      if(igg2) types.push(TABLES[4]);
      if(igg3) types.push(TABLES[5]);
      if(igg4) types.push(TABLES[6]);
-
      if(types.length == 0){
        console.log('Tabel is null')
        UsetResults([]);
@@ -116,6 +103,7 @@ const createValuesObject = () => {
      }
       try
       { 
+
        for (const type of types){
          const klvzNames =  await getKlvzNames(db,type.table);
          let value;
@@ -128,12 +116,13 @@ const createValuesObject = () => {
          if (type.type === TABLES[6].type)  value = igg4;
            
          // value = value * 100;
-         const ultimateResults = await checkUlatimate(type.table,ageInMonths,value,klvzNames,db);
+         const ultimateResults = await checkUlatimateWithUser(type.table,ageInMonths,value,klvzNames,userId,db);
          // console.log('Ultimate Results:', ultimateResults);
          allUResults.push(...ultimateResults);
          UsetResults(allUResults);
          const UgroupedResults=_.groupBy(allUResults,'kilavuzName');
          setUGroupedResults(UgroupedResults)
+       await handleSaveToFirestore(userId,iga,igm,igg,igg1,igg2,igg3,igg4);
        }
        }catch(err){`Error processing type ${type}:`, error}
    
@@ -215,78 +204,84 @@ const createValuesObject = () => {
              onChangeText={setIgg4}
            />
              <TouchableOpacity style={[styles.button]} onPress={handlecheck}>
-             <Text style={styles.buttonText}>Check</Text>
+             <Text style={styles.buttonText}>Check and Insert</Text>
            </TouchableOpacity>
 
 </View>
 
 {Object.keys(UgroupedResults).length === 0 ? (
-   <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
- ) : (
-   <SectionList
-     sections={Object.keys(UgroupedResults).map((key) => ({
-       title: key, // Group header (KilavuzName)
-       data: UgroupedResults[key], // Group items
-     }))}
-     keyExtractor={(item, index) => item.id || `${item.type}-${index}`}
-     renderSectionHeader={({ section }) => (
-       <Text style={styles.groupHeader}>{section.title}</Text>
-     )}
-     renderItem={({ item }) => (
-       <View style={styles.resultItem}>
-         {/* Main Result Text */}
-         <Text style={styles.resultText}>
-           {`IG${getTabletable(item.type).char}{${item.value}}   ${item.age_group}`}
-         </Text>
+    <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
+  ) : (
+    <SectionList
+      sections={Object.keys(UgroupedResults).map((key) => ({
+        title: key, // Group header (KilavuzName)
+        data: UgroupedResults[key], // Group items
+      }))}
+      keyExtractor={(item, index) => item.id || `${item.type}-${index}`}
+      renderSectionHeader={({ section }) => (
+        <Text style={styles.groupHeader}>{section.title}</Text>
+      )}
+      renderItem={({ item }) => (
+        <View style={styles.resultItem}>
+          {/* Main Result Text */}
+          <Text style={styles.resultText}>
+            {`IG${getTabletable(item.type).char}{${item.value}}   ${item.age_group}`}
+          </Text>
+          {item.isfirstTest?(
+            <Text>{item.firstTestDate} : {item.firstTestValue} </Text>
+          ):null}
+          {item.isSecoundTest?(
+            <Text>{item.secoundTestDate} : {item.secoundTestValue} </Text>
+          ):null}
+          {/* Geo Validation */}
+          {item.checkedByGeo ? (
+            <Text
+              style={[
+                styles.resultDetails,
+                { color: item.resultGeo ? 'green' : 'red' },
+              ]}
+            >
+              {`${item.isLowerGeo ? '↓' : ''}${item.DataBaseMinGeoRange} ${
+                item.resultGeo ? '↔' : '-'
+              } ${item.DataBaseMaxGeoRange} ${item.isHigherGeo ? '↑' : ''} Geometrik`}
+            </Text>
+          ):null}
 
-         {/* Geo Validation */}
-         {item.checkedByGeo ? (
-           <Text
-             style={[
-               styles.resultDetails,
-               { color: item.resultGeo ? 'green' : 'red' },
-             ]}
-           >
-             {`${item.isLowerGeo ? '↓' : ''}${item.DataBaseMinGeoRange} ${
-               item.resultGeo ? '↔' : '-'
-             } ${item.DataBaseMaxGeoRange} ${item.isHigherGeo ? '↑' : ''} Geometrik`}
-           </Text>
-         ):null}
+          {/* MinMax Validation */}
+          {item.checkedByminmax ? (
+            <Text
+              style={[
+                styles.resultDetails,
+                { color: item.resultMinMax ? 'green' : 'red' },
+              ]}
+            >
+              {`${item.isLowerMinMax ? '↓' : ''}${item.DataBaseMinRange} ${
+                item.resultMinMax ? '↔' : '-'
+              } ${item.DataBaseMaxRange} ${item.isHigherMinMax ? '↑' : ''} minmax`}
+            </Text>
+          ):null}
+          
 
-         {/* MinMax Validation */}
-         {item.checkedByminmax ? (
-           <Text
-             style={[
-               styles.resultDetails,
-               { color: item.resultMinMax ? 'green' : 'red' },
-             ]}
-           >
-             {`${item.isLowerMinMax ? '↓' : ''}${item.DataBaseMinRange} ${
-               item.resultMinMax ? '↔' : '-'
-             } ${item.DataBaseMaxRange} ${item.isHigherMinMax ? '↑' : ''} minmax`}
-           </Text>
-         ):null}
-
-         {/* Confidence Validation */}
-         {item.checkedByConf ? (
-           <Text
-             style={[
-               styles.resultDetails,
-               { color: item.resultConf ? 'green' : 'red' },
-             ]}
-           >
-             {`${item.isLowerConf ? '↓' : ''}${item.DataBaseMinRangeconf} ${
-               item.resultConf ? '↔' : '-'
-             } ${item.DataBaseMaxRangeconf} ${item.isHigherConf ? '↑' : ''} Conf`}
-           </Text>
-         ):null}
-       </View>
-     )}
-     ListEmptyComponent={
-       <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
-     }
-   />
- )}         
+          {/* Confidence Validation */}
+          {item.checkedByConf ? (
+            <Text
+              style={[
+                styles.resultDetails,
+                { color: item.resultConf ? 'green' : 'red' },
+              ]}
+            >
+              {`${item.isLowerConf ? '↓' : ''}${item.DataBaseMinRangeconf} ${
+                item.resultConf ? '↔' : '-'
+              } ${item.DataBaseMaxRangeconf} ${item.isHigherConf ? '↑' : ''} Conf`}
+            </Text>
+          ):null}
+        </View>
+      )}
+      ListEmptyComponent={
+        <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
+      }
+    />
+  )}         
          </KeyboardAvoidingView>
 
      );

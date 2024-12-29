@@ -7,7 +7,7 @@ import ToDoScreen from './components/ToDoScreen';
 import DataScreen from './components/dataPage';
 import AgeScreen from './components/AgeScreen';
 import EnterDataScreen from './components/EnterDataScreen';
-import UserResultsScreen from './components/UserResultsScreen';
+import UserScreen from './components/UserScreen';
 import AdminAddResultScreen from './components/AdminAddResultScreen';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 const Stack = createStackNavigator();
@@ -50,8 +50,8 @@ function UserStack() {
     <Stack.Navigator>
         
         <Stack.Screen 
-          name="UserResults" 
-          component={UserResultsScreen} 
+          name="UserScreen" 
+          component={UserScreen} 
           options={{ headerShown: false }} 
         />       
     </Stack.Navigator>
