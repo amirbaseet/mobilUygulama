@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView,TouchableWithoutFeedback, FlatList } from 'react-native';
+import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView,TouchableWithoutFeedback, FlatList ,SafeAreaView} from 'react-native';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import {getKlvzNames,checkUlatimate} from '../src/utils/klvz';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
@@ -84,8 +84,6 @@ import {getTabletable,TABLES} from '../src/utils/Table';
   }
 
     return(
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} 
-      accessible={false}>
         <KeyboardAvoidingView
           style={{ flex: 1 } }
           behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -171,76 +169,77 @@ import {getTabletable,TABLES} from '../src/utils/Table';
             </TouchableOpacity>
 </View>
 
-
-{Object.keys(UgroupedResults).length === 0 ? (
-    <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
-  ) : (
-    <SectionList
-      sections={Object.keys(UgroupedResults).map((key) => ({
-        title: key, // Group header (KilavuzName)
-        data: UgroupedResults[key], // Group items
-      }))}
-      keyExtractor={(item, index) => item.id || `${item.type}-${index}`}
-      renderSectionHeader={({ section }) => (
-        <Text style={styles.groupHeader}>{section.title}</Text>
-      )}
-      renderItem={({ item }) => (
-        <View style={styles.resultItem}>
-          {/* Main Result Text */}
-          <Text style={styles.resultText}>
-            {`IG${getTabletable(item.type).char}{${item.value}}   ${item.age_group}`}
-          </Text>
-
-          {/* Geo Validation */}
-          {item.checkedByGeo ? (
-            <Text
-              style={[
-                styles.resultDetails,
-                { color: item.resultGeo ? 'green' : 'red' },
-              ]}
-            >
-              {`${item.isLowerGeo ? '↓' : ''}${item.DataBaseMinGeoRange} ${
-                item.resultGeo ? '↔' : '-'
-              } ${item.DataBaseMaxGeoRange} ${item.isHigherGeo ? '↑' : ''} Geometrik`}
-            </Text>
-          ):null}
-
-          {/* MinMax Validation */}
-          {item.checkedByminmax ? (
-            <Text
-              style={[
-                styles.resultDetails,
-                { color: item.resultMinMax ? 'green' : 'red' },
-              ]}
-            >
-              {`${item.isLowerMinMax ? '↓' : ''}${item.DataBaseMinRange} ${
-                item.resultMinMax ? '↔' : '-'
-              } ${item.DataBaseMaxRange} ${item.isHigherMinMax ? '↑' : ''} minmax`}
-            </Text>
-          ):null}
-
-          {/* Confidence Validation */}
-          {item.checkedByConf ? (
-            <Text
-              style={[
-                styles.resultDetails,
-                { color: item.resultConf ? 'green' : 'red' },
-              ]}
-            >
-              {`${item.isLowerConf ? '↓' : ''}${item.DataBaseMinRangeconf} ${
-                item.resultConf ? '↔' : '-'
-              } ${item.DataBaseMaxRangeconf} ${item.isHigherConf ? '↑' : ''} Conf`}
-            </Text>
-          ):null}
-        </View>
-      )}
-      ListEmptyComponent={
+<SafeAreaView style={{flex:1}}>
+      {Object.keys(UgroupedResults).length === 0 ? (
         <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
-      }
-    />
-  )}         
-          </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
+      ) : (
+        <SectionList
+          sections={Object.keys(UgroupedResults).map((key) => ({
+            title: key, // Group header (KilavuzName)
+            data: UgroupedResults[key], // Group items
+          }))}
+          keyExtractor={(item, index) => item.id || `${item.type}-${index}`}
+          renderSectionHeader={({ section }) => (
+            <Text style={styles.groupHeader}>{section.title}</Text>
+          )}
+          renderItem={({ item }) => (
+            <View style={styles.resultItem}>
+              {/* Main Result Text */}
+              <Text style={styles.resultText}>
+                {`IG${getTabletable(item.type).char}{${item.value}}   ${item.age_group}`}
+              </Text>
+
+              {/* Geo Validation */}
+              {item.checkedByGeo ? (
+                <Text
+                  style={[
+                    styles.resultDetails,
+                    { color: item.resultGeo ? 'green' : 'red' },
+                  ]}
+                >
+                  {`${item.isLowerGeo ? '↓' : ''}${item.DataBaseMinGeoRange} ${
+                    item.resultGeo ? '↔' : '-'
+                  } ${item.DataBaseMaxGeoRange} ${item.isHigherGeo ? '↑' : ''} Geometrik`}
+                </Text>
+              ) : null}
+
+              {/* MinMax Validation */}
+              {item.checkedByminmax ? (
+                <Text
+                  style={[
+                    styles.resultDetails,
+                    { color: item.resultMinMax ? 'green' : 'red' },
+                  ]}
+                >
+                  {`${item.isLowerMinMax ? '↓' : ''}${item.DataBaseMinRange} ${
+                    item.resultMinMax ? '↔' : '-'
+                  } ${item.DataBaseMaxRange} ${item.isHigherMinMax ? '↑' : ''} minmax`}
+                </Text>
+              ) : null}
+
+              {/* Confidence Validation */}
+              {item.checkedByConf ? (
+                <Text
+                  style={[
+                    styles.resultDetails,
+                    { color: item.resultConf ? 'green' : 'red' },
+                  ]}
+                >
+                  {`${item.isLowerConf ? '↓' : ''}${item.DataBaseMinRangeconf} ${
+                    item.resultConf ? '↔' : '-'
+                  } ${item.DataBaseMaxRangeconf} ${item.isHigherConf ? '↑' : ''} Conf`}
+                </Text>
+              ) : null}
+            </View>
+          )}
+          ListEmptyComponent={
+            <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
+          }
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      )}
+      </SafeAreaView>
+              </KeyboardAvoidingView>
 
       );
     
@@ -261,8 +260,8 @@ export default function AgeScreen({navigation}) {
       >
         <GuestPage />
       </SQLiteProvider>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
-              <Text style={styles.logoutButtonText}>GoData</Text>
+      <TouchableOpacity style={styles.button} onPress={handleData}>
+              <Text style={styles.logoutButtonText}>back</Text>
             </TouchableOpacity>
     </View>
   );
@@ -306,6 +305,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  logoutButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
   resultItem: {
     backgroundColor: '#fff',
     padding: 15,

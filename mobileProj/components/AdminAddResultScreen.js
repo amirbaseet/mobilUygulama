@@ -144,7 +144,7 @@ const handleCheckMail = () => {
           onChangeText={setMail}//handleCheckMail
         /> 
            <Text>/{convertMonthsToYears(ageInMonths)}</Text>
-           <TouchableOpacity style={[styles.button]} onPress={handleCheckMail}>
+           <TouchableOpacity style={[styles.button1]} onPress={handleCheckMail}>
              <Text style={styles.buttonText}>CheckMail</Text>
            </TouchableOpacity>
            </View>
@@ -204,7 +204,7 @@ const handleCheckMail = () => {
              onChangeText={setIgg4}
            />
              <TouchableOpacity style={[styles.button]} onPress={handlecheck}>
-             <Text style={styles.buttonText}>Check and Insert</Text>
+             <Text style={styles.buttonText}>Insert </Text>
            </TouchableOpacity>
 
 </View>
@@ -301,7 +301,7 @@ export default function AdminAddResultScreen({navigation}) {
       >
         <GuestPage />
       </SQLiteProvider>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
+      <TouchableOpacity style={styles.button} onPress={handleData}>
               <Text style={styles.logoutButtonText}>GoData</Text>
             </TouchableOpacity>
     </View>);
@@ -313,7 +313,30 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
+  button: {
+    height: 45,
+    width: 70,
+    backgroundColor: '#4caf50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  button1: {
+    height: 45,
+    width: 100,
+    backgroundColor: '#4caf50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginBottom: 20,
+  },
 
+  logoutButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 
   inputRow:{
     flexWrap:'wrap',

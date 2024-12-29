@@ -4,9 +4,7 @@ import { auth, firestore } from '../firebase';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 export default function ToDoScreen({ navigation }) {
 
-  const [todo, setTodo] = useState('');
   const [user, setUser] = useState(null);
-  const [todoList, setTodoList] = useState([]);
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [ageInMonths, setAgeInMonths] = useState(null);
 
@@ -32,62 +30,15 @@ export default function ToDoScreen({ navigation }) {
         .catch(error => {
           console.error('Error fetching user data:', error);
         });
-
-      // Fetch ToDo list
-      const unsubscribe = firestore.collection('todos')
-        .where('userId', '==', currentUser.uid)
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snapshot => {
-          const todos = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setTodoList(todos);
-        });
-
-      return unsubscribe;
-    }
+      }
   }, []);
 
     
   const handleData= ()=>{
     navigation.replace('Data'); // Kullanıcı Login ekranına yönlendirilir
   }
-  const handleAddTodo = async () => {
-    if (todo.trim() === '') return alert('Please enter a ToDo');
 
-    const newTodo = {
-      userId: user.uid,
-      todo: todo,
-      createdAt: new Date(),
-      completed: false,
-    };
 
-    try {
-      await firestore.collection('todos').add(newTodo);
-      setTodo('');
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const toggleTodoCompletion = async (id, currentStatus) => {
-    try {
-      await firestore.collection('todos').doc(id).update({
-        completed: !currentStatus
-      });
-    } catch (error) {
-      alert('Failed to update status: ' + error.message);
-    }
-  };
-
-  const deleteTodo = async (id) => {
-    try {
-      await firestore.collection('todos').doc(id).delete();
-    } catch (error) {
-      alert('Failed to delete: ' + error.message);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -100,66 +51,39 @@ export default function ToDoScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      
        <Text style={styles.welcomeText}>Welcome, {user?.email}</Text>
-       {dateOfBirth && <Text style={styles.infoText}>Date of Birth: {dateOfBirth}</Text>}
-        {ageInMonths !== null && <Text style={styles.infoText}>Age in Months: {ageInMonths}</Text>}
+       {/* {dateOfBirth && <Text style={styles.infoText}>Date of Birth: {dateOfBirth}</Text>} */}
+        {/* {ageInMonths !== null && <Text style={styles.infoText}>Age in Months: {ageInMonths}</Text>} */}
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Listeye yeni öğe ekleyin"
-          value={todo}
-          onChangeText={setTodo}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleAddTodo}>
-          <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
-      </View>
 
-      <FlatList
-        data={todoList}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.todoItem}>
-            <Text style={[styles.todoText, item.completed && styles.completedText]}>
-              {item.todo}
-            </Text>
+      <View style={{flex:1,justifyContent:'center'}}>
 
-            <View style={styles.actionButtons}>
-              <TouchableOpacity 
-                style={styles.checkButton} 
-                onPress={() => toggleTodoCompletion(item.id, item.completed)}
-              >
-                <Text style={styles.checkText}>{item.completed ? '✅' : '☑️'}</Text>
-              </TouchableOpacity>
+      <View style={{flexWrap:'nowrap',flexDirection:'row' ,justifyContent:'space-between'}}>
+        <TouchableOpacity style={styles.Button} onPress={()=>{  navigation.replace('Age');}}>
+        <Text style={styles.logoutButtonText}>check Guest </Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.Button} onPress={()=>{  navigation.replace('AddResultScreen');}}>
+        <Text style={styles.logoutButtonText}>check User</Text>
+      </TouchableOpacity>
+        </View>
 
-              <TouchableOpacity 
-                style={styles.deleteButton} 
-                onPress={() => deleteTodo(item.id)}
-              >
-                <Text style={styles.deleteText}>❌</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <View style={{flexWrap:'nowrap',flexDirection:'row' ,justifyContent:'space-between'}}>
+        <TouchableOpacity style={styles.Button} onPress={handleData}>
+        <Text style={styles.logoutButtonText}>Kilavuz</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.Button} onPress={()=>{  navigation.replace('EnterDataScreen');}}>
+        <Text style={styles.logoutButtonText}>Enter Kilavuz</Text>
+      </TouchableOpacity>
+        </View>
+  
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
-        <Text style={styles.logoutButtonText}>GoData</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('Age');}}>
-        <Text style={styles.logoutButtonText}>Age</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('EnterDataScreen');}}>
-        <Text style={styles.logoutButtonText}>EnterDataScreen</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={()=>{  navigation.replace('AddResultScreen');}}>
-        <Text style={styles.logoutButtonText}>AddResultScreen</Text>
-      </TouchableOpacity>
-    
+
+
+      </View>
     </View>
   );
 }
@@ -242,6 +166,15 @@ const styles = StyleSheet.create({
   logoutButton: {
     height: 50,
     backgroundColor: '#d9534f',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  Button: {
+    height: 50,
+    width: 160,
+    backgroundColor: 'green',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
