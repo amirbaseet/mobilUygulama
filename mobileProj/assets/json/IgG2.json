@@ -1,4 +1,4 @@
-[{
+[ {
     "age_group": "25-36 months",
     "min_age_months": 25.0,
     "max_age_months": 36.0,
@@ -13,7 +13,7 @@
     "max_confidence": 156.39,
     "kilavuz_name": "TurkJMedSci",
     "type": "IgG2"
-},
+  },
 {
     "age_group": "3-5 years",
     "min_age_months": 36.0,

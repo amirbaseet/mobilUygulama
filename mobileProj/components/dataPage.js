@@ -3,7 +3,22 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { View, Text, FlatList, StyleSheet,TouchableOpacity } from 'react-native';
 
 import { Picker } from '@react-native-picker/picker';
-import {checkTypeKilavuzByMinMax,checkTypeKilavuzByGeo,checkUlatimate,getKlvzNames} from '../src/utils/klvz';
+import * as FileSystem from 'expo-file-system';
+
+
+const clearDatabaseCache = async () => {
+    const dbFilePath = `${FileSystem.documentDirectory}SQLite/immunoglobulins.db`;
+    try {
+      await FileSystem.deleteAsync(dbFilePath, { idempotent: true });
+      console.log("Database cache cleared.");
+  } catch (error) {
+      console.error("Error clearing cache:", error);
+  }
+};
+
+
+
+
 const TABLES = [
   'IgM_data',
   'IgA_data',
@@ -20,10 +35,13 @@ export function Main() {
   const [selectedTable, setSelectedTable] = useState(TABLES[0]); // Default to the first table
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  // clearDatabaseCache();
   // Fetch data for the selected table
   useEffect(() => {
+    // clearDatabaseCache();
+
     const fetchData = async () => {
+      
       setLoading(true);
       try {
         await db.withTransactionAsync(async () => {
@@ -107,7 +125,7 @@ export default function DataPage({navigation}) {
         <Main />
       </SQLiteProvider>
       <TouchableOpacity style={styles.logoutButton} onPress={handleData}>
-              <Text style={styles.logoutButtonText}>GoData</Text>
+              <Text style={styles.logoutButtonText}>GoHome</Text>
             </TouchableOpacity>
     </View>
   );
