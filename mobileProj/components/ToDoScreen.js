@@ -61,10 +61,10 @@ export default function ToDoScreen({ navigation }) {
 
       <View style={{flexWrap:'nowrap',flexDirection:'row' ,justifyContent:'space-between'}}>
         <TouchableOpacity style={styles.Button} onPress={()=>{  navigation.replace('Age');}}>
-        <Text style={styles.logoutButtonText}>check Guest </Text>
+        <Text style={styles.logoutButtonText}>Guest </Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.Button} onPress={()=>{  navigation.replace('AddResultScreen');}}>
-        <Text style={styles.logoutButtonText}>check User</Text>
+        <Text style={styles.logoutButtonText}>User</Text>
       </TouchableOpacity>
         </View>
 

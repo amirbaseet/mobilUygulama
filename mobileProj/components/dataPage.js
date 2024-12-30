@@ -47,7 +47,7 @@ export function Main() {
   return (
     <View style={styles.container}>
       {/* Dropdown to select table */}
-      <View style={styles.pickerContainer}>
+      <View style={[styles.pickerContainer,{height:150}]}>
         <Text style={styles.label}>Select Table:</Text>
         <Picker
           selectedValue={selectedTable}
@@ -70,11 +70,17 @@ export function Main() {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              {Object.entries(item).map(([key, value]) => (
-                <Text key={key}>
-                  {key}: {value}
-                </Text>
-              ))}
+              <Text>age Group: {item.age_group}</Text>
+              {item.min_geo && item.max_geo ? (
+              <Text key="geo">geo: {item.min_geo + '-' + item.max_geo}</Text>
+             ) : null}
+
+              {item.min && item.max?(<Text>min max: {item.min +'-'+item.max }</Text>)
+              :null}
+             {item.min_confidence&&item.max_confidence?( <Text>confidence: {item.min_confidence +'-'+item.max_confidence }</Text>
+            ):null}
+              <Text>kilavuz name: {item.kilavuz_name }</Text>
+             
             </View>
           )}
         />
@@ -118,7 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     elevation: 2,
-    padding: 10,
+    height:300
   },
   picker: {
     height: 50,

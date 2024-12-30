@@ -7,7 +7,7 @@ function evaluateValueRanges (value, row)  {
     console.error("Row data is required");
     return null;
   }
-
+  console.log(`row eva${row}`);
   // Min-Max Checks
             const isLowerMinMax = value < row.min;
             const isHigherMinMax = value > row.max;
@@ -81,7 +81,7 @@ console.log("***************************");
           rows.forEach((row) => {
             //checking by 
             //minmax
-            console.log(` min_geo = ${row.min_geo}, max_geo= ${row.max_geo}, min= ${row.min}, max= ${row.max},min_confidence= ${row.min_confidence},max_confidence= ${row.max_confidence}`)
+            // console.log(` min_geo = ${row.min_geo}, max_geo= ${row.max_geo}, min= ${row.min}, max= ${row.max},min_confidence= ${row.min_confidence},max_confidence= ${row.max_confidence}`)
             const isLowerMinMax = value < row.min;
             const isHigherMinMax = value > row.max;
             const inRangeMinMax = (!isLowerMinMax && !isHigherMinMax);
