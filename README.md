@@ -2,6 +2,16 @@
 ![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 
 This project is a mobile application developed for the **BSM447 - Mobile Application Development** course at Sakarya University. It allows administrators to manage patient test(Immunoglobulin) guidelines and data while enabling users to view and track their medical test results.
+## Technologies Used
+![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+
+- **React Native**: For building the mobile application.
+- **Firebase Authentication**: For user authentication and secure login.
+- **SQLite**: For local storage and offline data management.
+- **Firebase Database**: For storing and managing patient test data in the cloud.
+- **Expo**: For simplifying development and managing builds.
 
 ## Features
 
