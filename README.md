@@ -1,4 +1,5 @@
 # Mobile Application Project
+![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 
 This project is a mobile application developed for the **BSM447 - Mobile Application Development** course at Sakarya University. It allows administrators to manage patient test(Immunoglobulin) guidelines and data while enabling users to view and track their medical test results.
 
