@@ -1,6 +1,6 @@
 # Mobile Application Project
 
-This project is a mobile application developed for the **BSM447 - Mobile Application Development** course at Sakarya University. It allows administrators to manage patient test guidelines and data while enabling users to view and track their medical test results.
+This project is a mobile application developed for the **BSM447 - Mobile Application Development** course at Sakarya University. It allows administrators to manage patient test(Immunoglobulin) guidelines and data while enabling users to view and track their medical test results.
 
 ## Features
 
