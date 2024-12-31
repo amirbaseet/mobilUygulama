@@ -45,7 +45,7 @@ export function Main() {
       setLoading(true);
       try {
         await db.withTransactionAsync(async () => {
-          const statement = await db.prepareAsync(`SELECT * FROM ${selectedTable}`);
+          const statement = await db.prepareAsync(`SELECT * FROM ${selectedTable} `);
           const result = await statement.executeAsync();
           const rows = await result.getAllAsync();
           setData(rows);
@@ -89,13 +89,13 @@ export function Main() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text>age Group: {item.age_group}</Text>
-              {item.min_geo && item.max_geo ? (
+              {item.min_geo || item.max_geo ? (
               <Text key="geo">geo: {item.min_geo + '-' + item.max_geo}</Text>
              ) : null}
 
-              {item.min && item.max?(<Text>min max: {item.min +'-'+item.max }</Text>)
+              {item.min || item.max?(<Text>min max: {item.min +'-'+item.max }</Text>)
               :null}
-             {item.min_confidence&&item.max_confidence?( <Text>confidence: {item.min_confidence +'-'+item.max_confidence }</Text>
+             {item.min_confidence||item.max_confidence?( <Text>confidence: {item.min_confidence +'-'+item.max_confidence }</Text>
             ):null}
               <Text>kilavuz name: {item.kilavuz_name }</Text>
              

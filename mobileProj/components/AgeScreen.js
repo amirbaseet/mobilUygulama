@@ -1,26 +1,12 @@
 import React, { useState } from 'react';
-import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView, StyleSheet,KeyboardAvoidingView,TouchableWithoutFeedback, FlatList ,SafeAreaView} from 'react-native';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import {getKlvzNames,checkUlatimate} from '../src/utils/klvz';
-import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
+import {Platform,Keyboard, View,SectionList, Text, TextInput, TouchableOpacity, StyleSheet,KeyboardAvoidingView,SafeAreaView} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Keyboard } from 'react-native';
 import _ from 'lodash'; // Import lodash for grouping
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import {getTabletable,TABLES} from '../src/utils/Table';
-function convertMonthsToYears(ageInMonths) {
-  // Convert months to years and months
-  const years = Math.floor(ageInMonths / 12);
-  const remainingMonths = ageInMonths % 12;
-
-  // Format the result
-  if (years > 0 && remainingMonths > 0) {
-      return `${years}Y ${remainingMonths}M`;
-  } else if (years > 0) {
-      return `${years}Y`;
-  } else {
-      return `${remainingMonths}M`;
-  }
-}
+import {checkUlatimate} from '../src/utils/klvz';
+import {getKlvzNames} from '../src/services/dbLiteService';
+import calculateAgeInMonths,{convertMonthsToYears} from '../src/utils/calculateAgeInMonths';
 
 
 
@@ -48,8 +34,7 @@ function convertMonthsToYears(ageInMonths) {
          setDateOfBirth(selectedDate)
          const ageInMon = calculateAgeInMonths(selectedDate);
           console.log(ageInMon)
-          const agein=setAgeInMonths(ageInMon);
-          console.log(`\nMONTHOS AGE ${ageInMon}`)
+          setAgeInMonths(ageInMon);
         }
     }
     const handlecheck=async()=>{

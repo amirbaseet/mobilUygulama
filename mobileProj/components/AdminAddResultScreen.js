@@ -3,7 +3,10 @@ import {Platform, View,SectionList, Text, TextInput, TouchableOpacity,ScrollView
 import { auth, firestore } from '../firebase';
 import calculateAgeInMonths from '../src/utils/calculateAgeInMonths';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import {getKlvzNames,checkUlatimateWithUser,handleSaveToFirestore} from '../src/utils/klvz';
+import {checkUlatimateWithUser} from '../src/utils/klvz';
+import {getKlvzNames} from '../src/services/dbLiteService';
+import {handleSaveToFirestore} from '../src/services/firestoreService';
+
 
 import { Keyboard } from 'react-native';
 import _ from 'lodash'; // Import lodash for grouping
@@ -129,12 +132,11 @@ const handleCheckMail = () => {
  }
 
    return(
-   
        <KeyboardAvoidingView
          style={{ flex: 1 } }
          behavior={Platform.OS === 'ios' ? 'padding' : null}
        >
-        
+
          <View style={[{justifyContent:'center',alignItems:'center',flexDirection:'row',padding: 40,flexWrap:'wrap'}]}>
         
            <Text style={styles.welcomeText}>Enter User Email</Text>
@@ -208,6 +210,7 @@ const handleCheckMail = () => {
            </TouchableOpacity>
 
 </View>
+<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
 
 {Object.keys(UgroupedResults).length === 0 ? (
     <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found</Text>
@@ -282,6 +285,7 @@ const handleCheckMail = () => {
       }
     />
   )}         
+         </TouchableWithoutFeedback>
          </KeyboardAvoidingView>
 
      );

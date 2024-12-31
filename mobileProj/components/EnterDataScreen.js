@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView ,Platfo
 import RNPickerSelect from "react-native-picker-select";
 import * as SQLite from 'expo-sqlite';
 import {getTableName} from '../src/utils/Table';
-import {insertDataInto} from '../src/utils/klvz';
+import {insertDataInto} from '../src/services/dbLiteService';
 const table = ['IgM','IgA','IgG','IgG1','IgG2','IgG3','IgG4']
 
 export default function EnterDataScreen({navigation}) {
@@ -30,6 +30,10 @@ export default function EnterDataScreen({navigation}) {
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
+  function parseNumber(input, fallback) {
+    const parsed = parseFloat(input);
+    return isNaN(parsed) ? fallback : parsed;
+  }
   
   const handleSubmit = async () => {
     try {
@@ -37,17 +41,17 @@ export default function EnterDataScreen({navigation}) {
       await insertDataInto(getTableName(selectedTable).table, db, {
         ...formData,
         kilavuz_name: formData.kilavuz_name.toLowerCase(),
-        min_age_months: parseFloat(formData.min_age_months) || 0,
-        max_age_months: parseFloat(formData.max_age_months) || null,
-        number: parseFloat(formData.number) || 0,
-        min_geo: parseFloat(formData.min_geo) || null,
-        max_geo: parseFloat(formData.max_geo) || null,
-        min_mean_sd: parseFloat(formData.min_mean_sd) || null,
-        max_mean_sd: parseFloat(formData.max_mean_sd) || null,
-        min: parseFloat(formData.min) || null,
-        max: parseFloat(formData.max) || null,
-        min_confidence: parseFloat(formData.min_confidence) || null,
-        max_confidence: parseFloat(formData.max_confidence) || null,
+        min_age_months: parseNumber(formData.min_age_months, 0),
+        max_age_months: parseNumber(formData.max_age_months, null),
+        number: parseNumber(formData.number, 0),
+        min_geo: parseNumber(formData.min_geo, null),
+        max_geo: parseNumber(formData.max_geo, null),
+        min_mean_sd: parseNumber(formData.min_mean_sd, null),
+        max_mean_sd: parseNumber(formData.max_mean_sd, null),
+        min: parseNumber(formData.min, null),
+        max: parseNumber(formData.max, null),
+        min_confidence: parseNumber(formData.min_confidence, null),
+        max_confidence: parseNumber(formData.max_confidence, null),
         type:selectedTable,
       });
       setFormData({
@@ -105,9 +109,9 @@ return (
             value={formData[field]}
             onChangeText={(value) => handleInputChange(field, value)}
             keyboardType={
-              ["min_age_months", "max_age_months", "number", "min", "max,min_confidence","max_confidence"].includes(field)
-                ? "numeric"
-                : "default"
+              ["kilavuz_name","age_group"].includes(field)
+                ? "default"
+                : "numeric"
             }
           />
         ))}
