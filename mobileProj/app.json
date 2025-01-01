@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.amrobaseet.snack5d2b372400c64f4ca584255cde537e23"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,6 +43,18 @@
         }
       ],
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e45348bf-32c7-4719-9be4-a21423e1b9ee"
+      }
+    },
+    "owner": "amrobaseet",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e45348bf-32c7-4719-9be4-a21423e1b9ee"
+    }
   }
 }

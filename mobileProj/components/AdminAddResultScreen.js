@@ -125,9 +125,9 @@ const handleCheckMail = () => {
          UsetResults(allUResults);
          const UgroupedResults=_.groupBy(allUResults,'kilavuzName');
          setUGroupedResults(UgroupedResults)
-       await handleSaveToFirestore(userId,iga,igm,igg,igg1,igg2,igg3,igg4);
        }
        }catch(err){`Error processing type ${type}:`, error}
+       await handleSaveToFirestore(userId,iga,igm,igg,igg1,igg2,igg3,igg4);
    
  }
 

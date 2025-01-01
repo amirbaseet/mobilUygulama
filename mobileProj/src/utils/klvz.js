@@ -9,7 +9,7 @@ export async function checkUlatimate(type, patientAgeMonths, value, kilavuzNames
     const startTime = Date.now(); // Record start time
     const rows = await fetchKlvzData(type, patientAgeMonths, kilavuzNames, db); // Fetch rows
     const endTime = Date.now(); // Record end time
-    console.log(`\n\nQueryExecution Time: ${endTime - startTime}ms`);
+    console.log(`\n\nQueryExecution Time for ${type} : ${endTime - startTime}ms`);
     
     if (rows.length > 0) {
       rows.forEach((row) => {

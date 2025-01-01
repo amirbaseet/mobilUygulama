@@ -30,7 +30,6 @@ export function getGeoTest(row,value){
     return conf;
   }
   export function getMinMaxTest(row,value){
-    console.log(`isLower = ${value} `)
   
     const isLower =value < row.min;
     const isHigher = value > row.max;
@@ -44,7 +43,6 @@ export function getGeoTest(row,value){
       DataBaseMaxRange: row.max,
       checked: (row.min+row.max)>0//check if there values was null or not if null dont show the m to the user
     };
-    console.log(minMax.checked);
     return minMax;
   }
   

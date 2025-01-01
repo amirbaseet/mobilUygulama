@@ -58,6 +58,15 @@ export const fetchResultsByUserId = async (userId,type) => {
     console.error("Error fetching results:", error);
   }
 };
+function parseNumber(input, fallback) {
+  if (typeof input === 'string') {
+    input = input.replace(',', '.'); // Replace comma with a period for decimal parsing
+  }
+  const parsed = parseFloat(input);
+  console.log(`\ninput = ${input} parsed = ${parsed}`);
+  return isNaN(parsed) ? fallback : parsed;
+}
+
 export async function handleSaveToFirestore (userId,iga,igm,igg,igg1,igg2,igg3,igg4){
     if (!userId) {
       console.error("User ID is required to save data");
@@ -72,14 +81,14 @@ export async function handleSaveToFirestore (userId,iga,igm,igg,igg1,igg2,igg3,i
       await firestore.collection("results").add({
         userId: userId, // Associate with a user ID
         createdAt: formattedDate, 
-        IgA_data: isNaN(parseInt(iga)) ? null : parseInt(iga),
-        IgM_data: isNaN(parseInt(igm)) ? null : parseInt(igm),
-        IgG_data: isNaN(parseInt(igg)) ? null : parseInt(igg),
-        IgG1_data: isNaN(parseInt(igg1)) ? null : parseInt(igg1),
-        IgG2_data: isNaN(parseInt(igg2)) ? null : parseInt(igg2),
-        IgG3_data: isNaN(parseInt(igg3)) ? null : parseInt(igg3),
-        IgG4_data: isNaN(parseInt(igg4)) ? null : parseInt(igg4),
-      });
+        IgA_data: parseNumber(iga, null), // Use parseNumber for each value
+        IgM_data: parseNumber(igm, null),
+        IgG_data: parseNumber(igg, null),
+        IgG1_data: parseNumber(igg1, null),
+        IgG2_data: parseNumber(igg2, null),
+        IgG3_data: parseNumber(igg3, null),
+        IgG4_data: parseNumber(igg4, null),
+            });
       console.log("Data successfully saved to Firestore!");
     } catch (error) {
       console.error("Error saving data to Firestore:", error);

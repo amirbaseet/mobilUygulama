@@ -31,7 +31,11 @@ export default function EnterDataScreen({navigation}) {
     setFormData({ ...formData, [field]: value });
   };
   function parseNumber(input, fallback) {
+    if (typeof input === 'string') {
+      input = input.replace(',', '.'); // Replace comma with a period for decimal parsing
+    }
     const parsed = parseFloat(input);
+    console.log(`\ninput = ${input} parsed = ${parsed}`);
     return isNaN(parsed) ? fallback : parsed;
   }
   
