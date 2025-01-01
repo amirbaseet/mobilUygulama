@@ -28,6 +28,12 @@ This project is a mobile application developed for the **BSM447 - Mobile Applica
 - Login to view personal test history.
 - Submit new test results and compare them with past data.
 
+## Performance Metrics
+- Query execution times for database operations:
+  - **Best case:** 0ms
+  - **Worst case:** 2ms
+- The app demonstrates high efficiency in processing and retrieving immunoglobulin (Ig) data from the database.
+
 ## How to Run
 1. Open Expo Go and scan the following URL:
 https://expo.dev/preview/update?message=Final&updateRuntimeVersion=1.0.0&createdAt=2024-12-31T10%3A02%3A36.504Z&slug=exp&projectId=e45348bf-32c7-4719-9be4-a21423e1b9ee&group=0852bd8e-400b-4cbe-b691-4035f1eefba5
