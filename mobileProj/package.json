@@ -13,7 +13,7 @@
     "@react-native-picker/picker": "2.9.0",
     "@react-navigation/native": "*",
     "@react-navigation/stack": "*",
-    "expo": "~52.0.19",
+    "expo": "~57.0.9",
     "expo-document-picker": "^13.0.1",
     "expo-file-system": "^18.0.6",
     "expo-sqlite": "~15.0.4",
